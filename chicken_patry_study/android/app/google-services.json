@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "236513026433",
+    "project_id": "chicken-party-study",
+    "storage_bucket": "chicken-party-study.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:236513026433:android:d6e412a895e1490406c880",
+        "android_client_info": {
+          "package_name": "com.example.chicken_patry_study"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "236513026433-bpq7dq06d7hca13jpob6qds1u1onk1fn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.chicken_patry_study",
+            "certificate_hash": "bed2c5fadb3fd720aa8e52904af6f57a258ccb31"
+          }
+        },
+        {
+          "client_id": "236513026433-10tkngekec6idgamskkpg69m66mtdp20.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9dC5OpxPmCJkSA3eZ34Ca8LQoEcTVkP8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "236513026433-10tkngekec6idgamskkpg69m66mtdp20.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
