@@ -15,7 +15,10 @@ class _SplashScreenState extends State<SplashScreen> {
   //스플래시 스크린 뜨고 3초 뒤에 Home으로 들어감
   changeScreen() {
     Future.delayed(const Duration(seconds: 3), () {
-      Get.to(() => const Home());
+      Get.to(() => Home(
+            //로그인 유지 어떻게 할 건지 생각하기
+            isloggedin: false,
+          ));
     });
   }
 
@@ -36,8 +39,8 @@ class _SplashScreenState extends State<SplashScreen> {
               color: mainBackGroundColor,
               child: Image.asset(
                 splashScreen1,
-                width: context.screenWidth * 1,
-                height: context.screenHeight * 1,
+                width: MediaQuery.of(context).size.width * 1,
+                height: MediaQuery.of(context).size.height * 1,
                 alignment: Alignment.center,
               ),
             ),

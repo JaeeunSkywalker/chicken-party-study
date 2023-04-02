@@ -1,93 +1,93 @@
-import 'package:chicken_patry_study/consts/consts.dart';
-import 'package:chicken_patry_study/views/auth_screen/signin_screen/signin_screen.dart';
+import 'package:chicken_patry_study/widgets/appbar_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
-// ignore: depend_on_referenced_packages
+
+import '../../consts/consts.dart';
+import '../../widgets/bottom_navigation_bar.dart';
+import '../study_details/study_details.dart';
+import '../study_group/study_group_form.dart';
+// ignore: unused_import
 import 'package:intl/intl.dart' as intl;
 
-import '../login_screen/login_screen.dart';
-import '../study_details/study_details.dart';
-
-final nicknameProvider = StateProvider<String>((ref) => '');
-
-class Home extends ConsumerWidget {
-  const Home({Key? key}) : super(key: key);
-
-//   @override
-//   // ignore: library_private_types_in_public_api
-//   _HomeState createState() => _HomeState();
-// }
-
-// class _HomeState extends State<Home> {
+// ignore: must_be_immutable
+class Home extends StatefulWidget {
+  late bool isloggedin;
+  String nickname = '';
+  Home({Key? key, required this.isloggedin}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  HomeState createState() => HomeState();
+}
+
+class HomeState extends State<Home> {
+  List<BottomNavigationBarItem> items = [
+    const BottomNavigationBarItem(
+      icon: Icon(Icons.home),
+      label: '홈',
+    ),
+    const BottomNavigationBarItem(
+      icon: Icon(Icons.search),
+      label: '검색',
+    ),
+    const BottomNavigationBarItem(
+      icon: Icon(Icons.person),
+      label: '내 프로필',
+    ),
+  ];
+
+  //파베에서 읽어 온 값 저장할 곳
+  late DateTime startdate;
+  late DateTime enddate;
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Vx.black,
-          automaticallyImplyLeading: false,
-          title: (true)
-              ? Text(
-                  ', 오늘도 치파스!',
-                  style: const TextStyle(
-                    color: Colors.black, // 글자색 블랙
-                    fontWeight: FontWeight.bold, // 글자 굵기 설정
-                    fontSize: 20, // 글자 크기 설정
-                  ),
-                )
-              : Text(''),
-          actions: [
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: const TextStyle(color: Colors.black),
+      appBar: appBarWidget(widget.isloggedin),
+      bottomNavigationBar: MainBottomNavigationBar(
+        items: items,
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('studiesOnRecruiting')
+            .snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(
+                child: CircularProgressIndicator(
+              color: red,
+            )); // 로딩 중이면 CircularProgressIndicator 출력
+          }
+          final studios = snapshot.data!.docs;
+          return Container(
+            decoration: BoxDecoration(
+              image: const DecorationImage(
+                image: NetworkImage(mainBodyImage),
+                fit: BoxFit.cover,
               ),
-              onPressed: () {
-                Get.to(() => const LoginScreen());
-              },
-              child: const Text('로그인'),
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: const TextStyle(color: Colors.black),
+              border: Border(
+                bottom: BorderSide(
+                  width: 1,
+                  color: Colors.grey[300]!,
+                ),
               ),
-              onPressed: () {
-                Get.to(() => const SigninScreen());
-              },
-              child: const Text('회원가입'),
             ),
-          ],
-        ),
-        body: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('studiesOnRecruiting')
-              .snapshots(),
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (!snapshot.hasData) {
-              return const CircularProgressIndicator(); // 로딩 중이면 CircularProgressIndicator 출력
-            }
-            final studios = snapshot.data!.docs;
-            return ListView.builder(
+            child: ListView.builder(
               physics: const BouncingScrollPhysics(),
               itemCount: studios.length,
               itemBuilder: (BuildContext context, int index) {
                 final studio = studios[index];
                 //파이어스토어 timestamp 포맷 바꾸기
-                DateTime fromdate = (studio['fromdate'] as Timestamp).toDate();
-                DateTime todate = (studio['todate'] as Timestamp).toDate();
+                String startdate = (studio['startDate']);
+                String enddate = (studio['endDate']);
 
-                String formattedFromDate =
-                    intl.DateFormat('yyyy-MM-dd').format(fromdate);
-                String formattedToDate =
-                    intl.DateFormat('yyyy-MM-dd').format(todate);
                 return InkWell(
                   onTap: () {
                     Get.to(() => const StudyDetails());
                   },
                   child: Container(
                     decoration: BoxDecoration(
+                      color: white,
                       border: Border(
                         bottom: BorderSide(
                           width: 1,
@@ -96,22 +96,40 @@ class Home extends ConsumerWidget {
                       ),
                     ),
                     child: ListTile(
-                      title: Text(studio['title']),
-                      subtitle: Text(studio['description']),
+                      title: Text(studio['studyGoal']),
+                      subtitle: Text(studio['groupDescription']),
                       trailing: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text('시작일: $formattedFromDate'),
-                          Text('마감일: $formattedToDate'),
+                          Text('시작일: $startdate'),
+                          Text('마감일: $enddate'),
                         ],
                       ),
                     ),
                   ),
                 );
               },
-            );
-          },
-        ));
+            ),
+          );
+        },
+      ),
+      floatingActionButton: widget.isloggedin == true
+          ? FloatingActionButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return const AlertDialog(
+                      title: Text('스터디 그룹 만들기', textAlign: TextAlign.center),
+                      content: MakeGroupStudy(),
+                    );
+                  },
+                );
+              },
+              child: const Icon(Icons.add),
+            )
+          : null,
+    );
   }
 }

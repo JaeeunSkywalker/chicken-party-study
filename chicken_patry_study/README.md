@@ -1,16 +1,14 @@
-# chicken_patry_study
+지금 해야 하는 일
 
-A new Flutter project.
+-
 
-## Getting Started
+나중에 해야 하는 일
 
-This project is a starting point for a Flutter application.
+- 로그인 페이지에 파이어베이스UI 이용해서 로그인 작업하기
+- 로그인 유지 어떻게 할 건지 생각하기(GetStorage)
 
-A few resources to get you started if this is your first Flutter project:
+특이사항
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- 로그아웃 시 팝업 떠서 '로그아웃 하시겠습니까' 예/아니오 처리 일부러 안 함
+- 파베 Auth는 이메일 대소문자 구분 안 함(비밀번호는 함)
+  하지만 파베 Realtime Database나 Cloud Firestore에서는 대소문자 구분 가능
