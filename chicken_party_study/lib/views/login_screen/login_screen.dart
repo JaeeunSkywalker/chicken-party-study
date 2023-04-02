@@ -140,25 +140,26 @@ class LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// final FirebaseAuth _auth = FirebaseAuth.instance;
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
-// Future<void> signInWithEmailAndPassword(String email, String password) async {
-//   try {
-//     final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-//       email: email,
-//       password: password,
-//     );
-//     final user = userCredential.user;
+Future<void> signInWithEmailAndPassword(String email, String password) async {
+  try {
+    final UserCredential userCredential =
+        await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    final user = userCredential.user;
 
-//     if (user != null) {
-//       // 로그인 성공
-//     } else {
-//       // 로그인 실패
-//     }
-//   } catch (e) {
-//     // 예외 처리
-//   }
-// }
+    if (user != null) {
+      // 로그인 성공
+    } else {
+      // 로그인 실패
+    }
+  } catch (e) {
+    // 예외 처리
+  }
+}
 
 //구글 로그인
 // final GoogleSignIn _googleSignIn = GoogleSignIn();

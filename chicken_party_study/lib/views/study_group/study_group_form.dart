@@ -1,6 +1,10 @@
+import 'package:chicken_patry_study/views/home_screen/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+
+import '../../widgets/appbar_widget.dart';
 
 class MakeGroupStudy extends StatefulWidget {
   const MakeGroupStudy({super.key});
@@ -21,31 +25,47 @@ class MakeGroupStudyState extends State<MakeGroupStudy> {
   int numberOfDefaultParticipants = 5; //희망 참여 인원
   Duration studyperiod = const Duration(days: 0); //스프린트를 기본으로 해서 기간 기본값은 7일임
   List<String> tags = [];
-  int plannedStudyPeriod = 0;
+  String leaderName = '';
+  String studyLeader = '';
 
-  // ignore: prefer_typing_uninitialized_variables
-  late var formattedStartDate;
-  // ignore: prefer_typing_uninitialized_variables
-  late var formattedEndDate;
-  final DateFormat formatter = DateFormat('yyyy-MM-dd');
+  String? nickname;
+
+  String formattedStartDate = '';
+  String formattedEndDate = '';
+
+  int studyPeriodInDays = 0;
+
+  void getNickname() async {
+    final nickname = await getFirebaseUserNickname();
+    setState(() {
+      this.nickname = nickname;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getNickname();
+  }
 
   @override
   Widget build(BuildContext context) {
     //Calendar 관련 작업
+
     TextEditingController durationController =
-        TextEditingController(text: '${studyperiod.inDays.abs() + 1}일');
-    plannedStudyPeriod = studyperiod.inDays.abs() + 1;
+        TextEditingController(text: '${studyperiod.inDays.abs()}일');
+
     //Tag 관련 작업
     TextEditingController tagTextEditingController = TextEditingController();
 
     void addTag() {
-      setState(() {
-        String tag = tagTextEditingController.text.trim();
-        if (tag.isNotEmpty) {
+      String tag = tagTextEditingController.text.trim();
+      if (tag.isNotEmpty) {
+        setState(() {
           tags.add(tag);
           tagTextEditingController.clear();
-        }
-      });
+        });
+      }
     }
 
     void removeTag(String tag) {
@@ -158,7 +178,7 @@ class MakeGroupStudyState extends State<MakeGroupStudy> {
               },
               validator: (value) {
                 if (value!.isEmpty) {
-                  return "희망 참여 인원을 입력해 주세요.\n권장 인원은 5명입니다.";
+                  return "희망 참여 인원을 입력해 주세요. 권장 인원은 5명입니다.";
                 }
                 return null;
               },
@@ -179,50 +199,58 @@ class MakeGroupStudyState extends State<MakeGroupStudy> {
                 );
                 if (selectedDateRange != null) {
                   setState(() {
+                    final DateFormat formatter = DateFormat('yyyy-MM-dd');
+
                     startDate = selectedDateRange.start;
+                    endDate = selectedDateRange.end;
+
                     //DB에 담기는 값 = formattedStartDate,formattedEndDate
                     // ignore: unused_local_variable
                     formattedStartDate = formatter.format(startDate);
-                    endDate = selectedDateRange.end;
                     // ignore: unused_local_variable
                     formattedEndDate = formatter.format(endDate);
 
-                    studyperiod = endDate.difference(startDate);
+                    studyperiod =
+                        endDate.difference(startDate) + const Duration(days: 1);
+                    studyPeriodInDays = studyperiod.inDays;
                     //durationController.text = '${studyPeriod.inDays}일';
                   });
                 }
                 // alertlog가 닫힌 후 durationController를 clear()
-                durationController.clear();
+
                 // 다음 event loop까지 기다리기 위한 delay
                 //await Future.delayed(Duration.zero);
               },
               child: AbsorbPointer(
                 child: TextFormField(
                   decoration: const InputDecoration(
-                    labelText: '스터디 참여 기간',
+                    labelText: '스터디 참여 기간을 캘린더에서 선택해 주세요.',
                   ),
                   keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    final parsedValue = int.tryParse(value);
-                    if (parsedValue != null) {
-                      setState(() {
-                        studyperiod = Duration(days: parsedValue);
-                        plannedStudyPeriod = studyperiod.inDays;
-                        // ignore: unused_local_variable
-                      });
-                    }
+                  onChanged: (studyPeriodInDays) {
+                    setState(() {
+                      studyPeriodInDays;
+                    });
                   },
                   controller: durationController,
                 ),
               ),
             ),
-            TextFormField(
-              controller: tagTextEditingController,
-              decoration: const InputDecoration(
-                hintText: '스터디 검색 시 적용될 태그를 입력해 주세요',
-                prefixText: '#',
+            Form(
+              key: _formKey,
+              child: TextFormField(
+                onSaved: (value) {
+                  if (value != null && value.isNotEmpty) {
+                    tags.add(value);
+                  }
+                },
+                controller: tagTextEditingController,
+                decoration: const InputDecoration(
+                  hintText: '검색 시 적용될 태그 입력 후 엔터',
+                  prefixText: '#',
+                ),
+                onFieldSubmitted: (_) => addTag(),
               ),
-              onFieldSubmitted: (_) => addTag(),
             ),
             Expanded(
               child: Wrap(
@@ -240,36 +268,43 @@ class MakeGroupStudyState extends State<MakeGroupStudy> {
               ),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 //로그인한 사용자만 FAB를 볼 수 있고 스터디를 등록할 수 있음
                 FirebaseFirestore firestore = FirebaseFirestore.instance;
                 CollectionReference studiesRef =
                     firestore.collection('studiesOnRecruiting');
 
-                studiesRef.add({
+                //랜덤한 아이디를 생성합니다.
+                String newnewGroupId = studiesRef.doc().id;
+
+                // 파이어스토어에 데이터를 추가합니다.
+                await studiesRef.doc(newnewGroupId).set({
                   'groupName': groupName,
                   'groupDescription': groupDescription,
                   'studyGoal': studyGoal,
                   'isPublic': isPublic,
                   'numberOfDefaultParticipants': numberOfDefaultParticipants,
-                  'studyPeriod': plannedStudyPeriod,
+                  'studyPeriod': studyPeriodInDays,
                   'selectedTags': tags,
                   'startDate': formattedStartDate,
                   'endDate': formattedEndDate,
+                  'studyLeader': nickname,
+                  'newGroupId': newnewGroupId,
                 }).then((value) {
                   // 데이터 추가 성공
                   showDialog(
                     context: context,
                     builder: (_) => AlertDialog(
-                      title: const Text('스터디를 만들었습니다.'),
-                      content: const Text('확인을 누르면 홈 화면으로 이동합니다.'),
+                      title: const Text('스터디를 만들었습니다.',
+                          textAlign: TextAlign.center),
+                      content: const Text('확인을 누르면 홈 화면으로 이동합니다.',
+                          textAlign: TextAlign.center),
                       actions: [
                         TextButton(
-                          onPressed: () {
-                            Navigator.of(context)
-                                .popUntil((route) => route.isFirst);
+                          onPressed: () async {
+                            Get.offAll(() => Home(isloggedin: true));
                           },
-                          child: const Text('확인'),
+                          child: const Center(child: Text('확인')),
                         ),
                       ],
                     ),
@@ -292,8 +327,9 @@ class MakeGroupStudyState extends State<MakeGroupStudy> {
                   );
                 });
               },
-              child: const Text('등록'),
+              child: const Text('스터디 등록하기'),
             ),
+            Text('스터디 개설자: $nickname!'),
           ],
         ),
       ),

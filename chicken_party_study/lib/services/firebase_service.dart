@@ -17,9 +17,9 @@ class FirebaseService {
   Future<void> createUser(
     String email,
     String password,
+    String passwordConfirm,
     String name,
     String nickname,
-    String phone,
   ) async {
     // 중복 이메일 검사
     bool isDuplicate = await isEmailDuplicate(email);
@@ -28,21 +28,18 @@ class FirebaseService {
     }
 
     // Firebase Auth에 사용자 등록
+    // ignore: unused_local_variable
     UserCredential userCredential =
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
+  }
 
-    // Firestore에 사용자 정보 추가
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(userCredential.user!.uid)
-        .set({
-      'email': email,
-      'name': name,
-      'nickname': nickname,
-      'phone': phone,
-    });
+  Future<DocumentSnapshot<Map<String, dynamic>>> getStudyDetails(
+      String newGroupId) async {
+    final DocumentReference<Map<String, dynamic>> documentReference =
+        _firestore.collection('studiesOnRecruiting').doc(newGroupId);
+    return documentReference.get();
   }
 }

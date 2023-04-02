@@ -35,13 +35,16 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Center(
         child: Column(
           children: [
-            Container(
-              color: mainBackGroundColor,
-              child: Image.asset(
-                splashScreen1,
-                width: MediaQuery.of(context).size.width * 1,
-                height: MediaQuery.of(context).size.height * 1,
+            Expanded(
+              child: Container(
                 alignment: Alignment.center,
+                color: mainBackGroundColor,
+                child: Image.asset(
+                  splashScreen1,
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  height: MediaQuery.of(context).size.height * 0.9,
+                  alignment: Alignment.center,
+                ),
               ),
             ),
           ],
