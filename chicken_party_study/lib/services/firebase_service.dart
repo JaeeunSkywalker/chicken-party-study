@@ -27,13 +27,22 @@ class FirebaseService {
       throw Exception('중복된 이메일입니다.');
     }
 
-    // Firebase Auth에 사용자 등록
-    // ignore: unused_local_variable
+    // Cloud Firestore의 users 컬렉션에 사용자 정보 추가
     UserCredential userCredential =
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userCredential.user!.uid)
+        .set({
+      'email': email,
+      'name': name,
+      'nickname': nickname,
+      'password': password,
+      'passwordConfirm': passwordConfirm,
+    });
   }
 
   Future<DocumentSnapshot<Map<String, dynamic>>> getStudyDetails(

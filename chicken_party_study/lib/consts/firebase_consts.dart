@@ -24,28 +24,6 @@ Future<UserCredential> signInAnonymously() async {
   return userCredential;
 }
 
-// 이메일/비밀번호 회원가입
-Future<UserCredential> signUpWithEmailAndPassword(
-    String email, String password) async {
-  UserCredential userCredential =
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-    email: email,
-    password: password,
-  );
-  return userCredential;
-}
-
-// 이메일/비밀번호 로그인
-Future<UserCredential> signInWithEmailAndPassword(
-    String email, String password) async {
-  UserCredential userCredential =
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-    email: email,
-    password: password,
-  );
-  return userCredential;
-}
-
 // 이메일 확인 메일 전송
 Future<void> sendEmailVerification() async {
   User user = FirebaseAuth.instance.currentUser!;
