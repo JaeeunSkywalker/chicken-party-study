@@ -191,7 +191,7 @@ class _SigninState extends State<SigninScreen> {
 
     try {
       // FirebaseService를 사용하여 회원가입 처리
-      await FirebaseService.instance.createUser(
+      await FirebaseService().createUser(
         _email.toLowerCase(),
         _password,
         _passwordConfirm,

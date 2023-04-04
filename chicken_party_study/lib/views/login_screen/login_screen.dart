@@ -1,3 +1,4 @@
+import 'package:chicken_patry_study/app_cache/app_cache.dart';
 import 'package:chicken_patry_study/views/home_screen/home.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -55,8 +56,7 @@ class LoginScreenState extends State<LoginScreen> {
       // User exists, set isLoggedin to true and navigate to home screen
       setState(() {
         _isLoading = false;
-        isLoggedin = true;
-        //여기서 isLoggedn 값을 Home으로 보내야 함
+        AppCache.saveCacheisLoggedin(true);
       });
 
       // ignore: use_build_context_synchronously
@@ -121,7 +121,7 @@ class LoginScreenState extends State<LoginScreen> {
               ElevatedButton(
                 onPressed: () async {
                   await _signInWithEmailAndPassword();
-                  if (isLoggedin) {
+                  if (AppCache.getCachedisLoggedin()) {
                     Get.to(() => Home(isloggedin: true));
                   } else {
                     // ignore: use_build_context_synchronously

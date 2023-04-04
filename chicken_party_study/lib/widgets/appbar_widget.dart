@@ -15,7 +15,7 @@ PreferredSize appBarWidget(isloggedin) {
   bool loginLog = GetStorage().read<bool>('isLoggedin') ?? false;
 
   return PreferredSize(
-    preferredSize: const Size.fromHeight(80.0),
+    preferredSize: const Size.fromHeight(70.0),
     child: AppBar(
       backgroundColor: black,
       automaticallyImplyLeading: false,
