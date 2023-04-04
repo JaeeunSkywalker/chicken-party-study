@@ -25,5 +25,5 @@ Widget _buildStudyDetailsScreen() {
 
 Widget _buildHome() {
   final bool isLoggedin = Get.arguments ?? false;
-  return Home(isloggedin: isLoggedin);
+  return Home(isLoggedin: isLoggedin);
 }

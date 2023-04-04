@@ -1,3 +1,5 @@
+import 'package:chicken_patry_study/app_cache/app_cache.dart';
+import 'package:chicken_patry_study/services/firebase_service.dart';
 import 'package:chicken_patry_study/widgets/appbar_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -10,9 +12,10 @@ import '../study_group/study_group_form.dart';
 
 // ignore: must_be_immutable
 class Home extends StatefulWidget {
-  late bool isloggedin;
+  bool? isLoggedin = AppCache.getCachedisLoggedin();
+
   String nickname = '';
-  Home({Key? key, required this.isloggedin}) : super(key: key);
+  Home({Key? key, required this.isLoggedin}) : super(key: key);
 
   @override
   HomeState createState() => HomeState();
@@ -38,14 +41,17 @@ class HomeState extends State<Home> {
   late DateTime enddate;
   String newGroupId = '';
 
+  // ignore: prefer_final_fields
+  bool _isLoggedin = AppCache.getCachedisLoggedin();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarWidget(widget.isloggedin),
+      appBar: appBarWidget(),
       bottomNavigationBar: MainBottomNavigationBar(
         items: items,
       ),
-      floatingActionButton: widget.isloggedin == true
+      floatingActionButton: _isLoggedin == true
           ? FloatingActionButton(
               onPressed: () {
                 showDialog(
@@ -62,7 +68,7 @@ class HomeState extends State<Home> {
             )
           : null,
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
+        stream: MyFirebaseService.firestore
             .collection('studiesOnRecruiting')
             .snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -120,7 +126,7 @@ class HomeState extends State<Home> {
                           ],
                         ),
                         onTap: () async {
-                          final docSnapshot = await FirebaseFirestore.instance
+                          final docSnapshot = await MyFirebaseService.firestore
                               .collection('studiesOnRecruiting')
                               .doc(studio.id)
                               .get();

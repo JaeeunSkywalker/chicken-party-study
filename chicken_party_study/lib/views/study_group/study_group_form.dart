@@ -1,10 +1,9 @@
+import 'package:chicken_patry_study/services/firebase_service.dart';
 import 'package:chicken_patry_study/views/home_screen/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
-import '../../widgets/appbar_widget.dart';
 
 class MakeGroupStudy extends StatefulWidget {
   const MakeGroupStudy({super.key});
@@ -36,7 +35,7 @@ class MakeGroupStudyState extends State<MakeGroupStudy> {
   int studyPeriodInDays = 0;
 
   void getNickname() async {
-    final nickname = await getFirebaseUserNickname();
+    final nickname = await MyFirebaseService().getFirebaseUserNickname();
     setState(() {
       this.nickname = nickname;
     });
@@ -270,7 +269,7 @@ class MakeGroupStudyState extends State<MakeGroupStudy> {
             ElevatedButton(
               onPressed: () async {
                 //로그인한 사용자만 FAB를 볼 수 있고 스터디를 등록할 수 있음
-                FirebaseFirestore firestore = FirebaseFirestore.instance;
+                FirebaseFirestore firestore = MyFirebaseService.firestore;
                 CollectionReference studiesRef =
                     firestore.collection('studiesOnRecruiting');
 
@@ -290,6 +289,7 @@ class MakeGroupStudyState extends State<MakeGroupStudy> {
                   'endDate': formattedEndDate,
                   'studyLeader': nickname,
                   'newGroupId': newnewGroupId,
+                  'currentMembers': 1,
                 }).then((value) {
                   // 데이터 추가 성공
                   showDialog(
@@ -302,7 +302,7 @@ class MakeGroupStudyState extends State<MakeGroupStudy> {
                       actions: [
                         TextButton(
                           onPressed: () async {
-                            Get.offAll(() => Home(isloggedin: true));
+                            Get.offAll(() => Home(isLoggedin: true));
                           },
                           child: const Center(child: Text('확인')),
                         ),

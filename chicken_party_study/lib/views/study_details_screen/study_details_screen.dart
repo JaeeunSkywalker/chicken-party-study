@@ -25,7 +25,7 @@ class StudyDetailsScreenState extends State<StudyDetailsScreen> {
   Future<void> loadStudyDetails(String newGroupId) async {
     try {
       final DocumentSnapshot<Map<String, dynamic>> snapshot =
-          await FirebaseService().getStudyDetails(widget.newGroupId);
+          await MyFirebaseService().getStudyDetails(widget.newGroupId);
       if (snapshot.exists) {
         setState(() {
           studyDetails = snapshot.data()!;
@@ -94,11 +94,11 @@ class StudyDetailsScreenState extends State<StudyDetailsScreen> {
   ///스터디 조인 메서드////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
   Future<void> joinStudy(String studyId) async {
-    final docRef = FirebaseFirestore.instance
+    final docRef = MyFirebaseService.firestore
         .collection('studiesOnRecruiting')
         .doc(studyDetails['currentMembers']);
 
-    await FirebaseFirestore.instance.runTransaction((transaction) async {
+    await MyFirebaseService.firestore.runTransaction((transaction) async {
       final doc = await transaction.get(docRef);
       final currentMembers = doc.data()!['currentMembers'] as int;
       final maxMembers = doc.data()!['numberOfDefaultParticipants'] as int;
@@ -118,11 +118,11 @@ class StudyDetailsScreenState extends State<StudyDetailsScreen> {
   ///스터디 리브 메서드////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
   Future<void> leaveStudy(String studyId) async {
-    final docRef = FirebaseFirestore.instance
+    final docRef = MyFirebaseService.firestore
         .collection('studiesOnRecruiting')
         .doc(studyDetails['currentMembers']);
 
-    await FirebaseFirestore.instance.runTransaction((transaction) async {
+    await MyFirebaseService.firestore.runTransaction((transaction) async {
       final doc = await transaction.get(docRef);
       final currentMembers = doc.data()!['currentMembers'] as int;
 
