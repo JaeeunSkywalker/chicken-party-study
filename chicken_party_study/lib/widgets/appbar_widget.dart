@@ -97,11 +97,3 @@ Future<String> getFirebaseUserNickname() async {
   print(snapshot);
   return userNickname;
 }
-
-// IconButton(
-//           onPressed: () {},
-//           icon: const Icon(
-//             Icons.logout,
-//             color: Colors.black,
-//           ),
-//         ),

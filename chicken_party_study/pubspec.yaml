@@ -51,6 +51,9 @@ dependencies:
   table_calendar: ^3.0.9
   intl:
   firebase_database:
+  go_router: ^6.5.3
+  path_provider: ^2.0.14
+  firebase_storage: ^11.1.0
 
 dev_dependencies:
   flutter_test:

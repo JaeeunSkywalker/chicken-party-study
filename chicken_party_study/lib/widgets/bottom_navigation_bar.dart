@@ -1,5 +1,5 @@
 import 'package:chicken_patry_study/consts/colors.dart';
-import 'package:chicken_patry_study/views/profile_screen/profile_screen.dart';
+import 'package:chicken_patry_study/views/profile_screen/public_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

@@ -1,12 +1,50 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 
 class FirebaseService {
   //파이어스토어 instance 초기화
   static final FirebaseFirestore firestore = FirebaseFirestore.instance;
   //파이어베이스Auth instance 초기화
   static final FirebaseAuth auth = FirebaseAuth.instance;
+  //final FirebaseStorage storage = FirebaseStorage.instance;
   late UserCredential userCredential;
+
+  //StorageReference 생성하기
+  final storageRef = FirebaseStorage.instance.ref();
+  //이미지 업로드하기
+  Future<String?> uploadImage(File file) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child(user!.uid)
+          .child('profile_image.jpg');
+      await storageRef.putFile(file);
+      final downloadUrl = await storageRef.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  //이미지 읽어 오기
+  Future<Uint8List?> getImage() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child(user!.uid)
+          .child('profile_image.jpg');
+      final imageData = await storageRef.getData();
+      return imageData;
+    } catch (e) {
+      return null;
+    }
+  }
 
   Future<bool> isEmailDuplicate(String email) async {
     final QuerySnapshot<Map<String, dynamic>> result = await firestore

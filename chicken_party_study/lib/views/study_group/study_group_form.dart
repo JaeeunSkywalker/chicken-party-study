@@ -1,10 +1,9 @@
+import 'package:chicken_patry_study/services/firebase_service.dart';
 import 'package:chicken_patry_study/views/home_screen/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
-import '../../widgets/appbar_widget.dart';
 
 class MakeGroupStudy extends StatefulWidget {
   const MakeGroupStudy({super.key});
@@ -36,7 +35,7 @@ class MakeGroupStudyState extends State<MakeGroupStudy> {
   int studyPeriodInDays = 0;
 
   void getNickname() async {
-    final nickname = await getFirebaseUserNickname();
+    final nickname = await FirebaseService().getFirebaseUserNickname();
     setState(() {
       this.nickname = nickname;
     });
