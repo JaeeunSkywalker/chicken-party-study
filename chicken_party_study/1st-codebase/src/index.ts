@@ -1,7 +1,6 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 admin.initializeApp();
-
 export const updateProfileOnNicknameChange = functions.firestore
   .document("users/{userId}")
   .onUpdate((change, context) => {

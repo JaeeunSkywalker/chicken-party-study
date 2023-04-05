@@ -57,7 +57,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('프로필 수정 페이지'),
-        actions: [],
+        actions: const [],
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
