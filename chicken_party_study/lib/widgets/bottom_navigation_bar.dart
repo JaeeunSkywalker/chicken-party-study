@@ -1,9 +1,9 @@
 import 'package:chicken_patry_study/consts/colors.dart';
-import 'package:chicken_patry_study/views/profile_screen/public_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../app_cache/app_cache.dart';
+import '../views/profile_screen/public_profile_screen.dart';
 
 class MainBottomNavigationBar extends StatefulWidget {
   final List<BottomNavigationBarItem> items;
@@ -32,7 +32,7 @@ class MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
         // "내 프로필" 버튼을 눌렀을 때
         if (AppCache.getCachedisLoggedin() == true) {
           // 로그인이 되어 있으면
-          Get.to(() => const ProfileScreen()); // ProfileScreen으로 이동
+          Get.to(() => const PublicProfileScreen()); // ProfileScreen으로 이동
         } else {
           // 로그인이 되어 있지 않으면
           Get.snackbar(

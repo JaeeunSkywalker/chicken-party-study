@@ -2,19 +2,22 @@
 import 'dart:io';
 
 import 'package:chicken_patry_study/services/firebase_service.dart';
+import 'package:chicken_patry_study/views/profile_screen/private_profile_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+class PublicProfileScreen extends StatefulWidget {
+  const PublicProfileScreen({Key? key}) : super(key: key);
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<PublicProfileScreen> createState() => _PublicProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _PublicProfileScreenState extends State<PublicProfileScreen> {
   ImageProvider<Object>? _imageProvider;
   String? _userNickname;
 
@@ -33,6 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     //profileSettings collection
     final userData2 =
         FirebaseService.firestore.collection('profileSettings').doc(uid);
+    // ignore: unused_local_variable
     final snapshot2 = await userData2.get();
     final name = snapshot1.data()?['name'];
     if (name != null) {
@@ -59,19 +63,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   //프로필 사진 관련
-  File? _imageFile;
+  // File? _imageFile;
 
   //이미지 피커로 로컬에서 이미지 가져 오기
-  Future _getImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  // Future _getImage() async {
+  //   final picker = ImagePicker();
+  //   final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-    setState(() {
-      if (pickedFile != null) {
-        _imageFile = File(pickedFile.path);
-      }
-    });
-  }
+  //   setState(() {
+  //     if (pickedFile != null) {
+  //       _imageFile = File(pickedFile.path);
+  //     }
+  //   });
+  // }
 
   //이미지를 ImagePicker에서 선택한 뒤
   //Firebase Storage에 업로드하고 업로드한 이미지의 URL을 Firestore에 저장함
@@ -118,8 +122,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //프로필 설정 관련
   //변수 설정
 
-  bool _isEditMode = false;
-
   String collection1Nickname = ''; //닉네임
   String? collection2Job; //직업
   String? collection2Goal; //치파스를 통해 달성하고 싶은 목표
@@ -148,9 +150,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('프로필 설정'),
-      ),
+      appBar: AppBar(title: const Text('공개 프로필 페이지'), actions: [
+        IconButton(
+          icon: const Icon(Icons.edit),
+          onPressed: () {
+            Get.to(() => const EditProfileScreen());
+          },
+        ),
+      ]),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Padding(
@@ -204,7 +211,158 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const AssetImage(
                               'assets/images/default_profile_image.png'),
                     ),
-                  )
+                  ),
+                  const SizedBox(
+                    height: 16.0,
+                  ),
+                  StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('profiles')
+                        .doc(FirebaseAuth.instance.currentUser!.uid)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData &&
+                          snapshot.data != null &&
+                          snapshot.data!.exists) {
+                        final data =
+                            snapshot.data!.data() as Map<String, dynamic>;
+                        return Stack(
+                          children: [
+                            Container(
+                              height: MediaQuery.of(context).size.height * 0.4,
+                              decoration: const BoxDecoration(
+                                color: Colors.blue,
+                              ),
+                            ),
+                            Positioned(
+                              left: 16,
+                              top: 32,
+                              child: IconButton(
+                                icon: const Icon(Icons.arrow_back,
+                                    color: Colors.white),
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: -64,
+                              child: CircleAvatar(
+                                radius: 80,
+                                backgroundColor: Colors.white,
+                                child: CircleAvatar(
+                                  radius: 76,
+                                  backgroundImage: NetworkImage(
+                                    data['photoUrl'],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 180),
+                              child: Container(
+                                width: double.infinity,
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      data['nickname'],
+                                      style: const TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      data['job'],
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    const Text(
+                                      '자기 소개',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      data['selfintroduction'],
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    const Text(
+                                      '인생 목표',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      data['lifegoal'],
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    const Text(
+                                      '단기 목표',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      data['shorttermgoal'],
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    const Text(
+                                      '중기 목표',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      data['midtermgoal'],
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    const Text(
+                                      '장기 목표',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      data['longtermgoal'],
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return Column(
+                          children: const [
+                            Padding(
+                                padding: EdgeInsets.all(12.0),
+                                child: Text('우측 상단 펜 아이콘을 클릭해 등록부터 해 주세요.')),
+                            Padding(
+                              padding: EdgeInsets.all(12.0),
+                              child: Text(' 사진 변경은 이 페이지에서도 할 수 있습니다.'),
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  ),
                 ],
               ),
             ),
