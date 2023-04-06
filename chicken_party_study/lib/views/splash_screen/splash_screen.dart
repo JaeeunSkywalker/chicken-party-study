@@ -16,7 +16,6 @@ class _SplashScreenState extends State<SplashScreen> {
   changeScreen() {
     Future.delayed(const Duration(seconds: 3), () {
       Get.to(() => Home(
-            //로그인 유지 어떻게 할 건지 생각하기
             isloggedin: false,
           ));
     });

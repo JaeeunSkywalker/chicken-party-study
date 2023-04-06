@@ -80,6 +80,20 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Get.to(() => Home(isloggedin: false));
+          },
+        ),
+        title: const Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            '로그인 페이지',
+          ),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Form(

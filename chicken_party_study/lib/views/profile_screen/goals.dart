@@ -74,6 +74,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
         SetOptions(merge: true),
       );
     } catch (e) {
+      // ignore: avoid_print
       print('파이어스토어에 데이터를 저장하던 중 오류가 발생했습니다.: $e');
     }
   }

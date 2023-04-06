@@ -301,7 +301,7 @@ class MakeGroupStudyState extends State<MakeGroupStudy> {
                       actions: [
                         TextButton(
                           onPressed: () async {
-                            Get.offAll(() => Home(isloggedin: true));
+                            Get.to(() => Home(isloggedin: true));
                           },
                           child: const Center(child: Text('확인')),
                         ),

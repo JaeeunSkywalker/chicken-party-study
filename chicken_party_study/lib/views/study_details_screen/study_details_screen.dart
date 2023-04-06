@@ -1,7 +1,10 @@
+import 'package:chicken_patry_study/app_cache/app_cache.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../services/firebase_service.dart';
+import '../home_screen/home.dart';
 
 class StudyDetailsScreen extends StatefulWidget {
   final String newGroupId;
@@ -41,7 +44,15 @@ class StudyDetailsScreenState extends State<StudyDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(studyDetails['groupName'] ?? '스터디 상세 화면'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Get.to(() => Home(isloggedin: AppCache.getCachedisLoggedin()));
+          },
+        ),
+        title: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(studyDetails['groupName'] ?? '스터디 상세 화면')),
       ),
       body: ListView(
         children: [

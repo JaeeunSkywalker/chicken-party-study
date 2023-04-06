@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:chicken_patry_study/services/firebase_service.dart';
+import 'package:chicken_patry_study/views/home_screen/home.dart';
 import 'package:chicken_patry_study/views/profile_screen/goals.dart';
 import 'package:chicken_patry_study/views/profile_screen/private_profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -126,14 +127,27 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('공개 프로필 페이지'), actions: [
-        IconButton(
-          icon: const Icon(Icons.edit),
-          onPressed: () {
-            Get.to(() => const EditProfileScreen());
-          },
-        ),
-      ]),
+      appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Get.to(() => Home(isloggedin: true));
+            },
+          ),
+          title: const Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              '공개 프로필 페이지',
+            ),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                Get.to(() => const EditProfileScreen());
+              },
+            ),
+          ]),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

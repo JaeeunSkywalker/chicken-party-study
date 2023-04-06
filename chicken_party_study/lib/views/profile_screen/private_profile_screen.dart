@@ -85,7 +85,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     //     .doc(uid)
     //     .set(data, SetOptions(merge: true));
 
-    Get.offAll(() => const PublicProfileScreen());
+    Get.to(() => const PublicProfileScreen());
   }
 
   //nickname만
@@ -126,8 +126,18 @@ class EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('프로필 수정 페이지'),
-        actions: const [],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        title: const Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            '프로필 수정 페이지',
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),

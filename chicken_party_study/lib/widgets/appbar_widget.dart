@@ -3,9 +3,11 @@ import 'package:chicken_patry_study/views/home_screen/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
+import '../flutter_hooks/app_lifecycle_observer.dart';
 import '../views/auth_screen/signin_screen/signin_screen.dart';
 import '../views/login_screen/login_screen.dart';
 
@@ -79,7 +81,7 @@ PreferredSize appBarWidget(isloggedin) {
               // 로그아웃 처리
               FirebaseAuth.instance.signOut();
               GetStorage().remove('isLoggedin');
-              Get.offAll(() => Home(isloggedin: false));
+              Get.to(() => Home(isloggedin: false));
             },
             child: const Text('로그아웃'),
           ),
@@ -96,4 +98,23 @@ Future<String> getFirebaseUserNickname() async {
   // ignore: avoid_print
   print(snapshot);
   return userNickname;
+}
+
+void useLogoutOnAppCloseEffect() {
+  useEffect(() {
+    final box = GetStorage();
+    void callback() {
+      // 로그인 캐시 삭제 코드
+      box.write('isLoggedin', false);
+    }
+
+    final observer = AppLifecycleObserver(
+      didPause: callback,
+      didTerminate: callback,
+    );
+    WidgetsBinding.instance.addObserver(observer);
+    return () {
+      WidgetsBinding.instance.removeObserver(observer);
+    };
+  }, []);
 }
