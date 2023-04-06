@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:chicken_patry_study/services/firebase_service.dart';
+import 'package:chicken_patry_study/views/profile_screen/goals.dart';
 import 'package:chicken_patry_study/views/profile_screen/private_profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -119,31 +120,6 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
 
   String? userPhotoUrl = FirebaseAuth.instance.currentUser!.photoURL;
 
-  //프로필 설정 관련
-  //변수 설정
-
-  String collection1Nickname = ''; //닉네임
-  String? collection2Job; //직업
-  String? collection2Goal; //치파스를 통해 달성하고 싶은 목표
-
-  //단기 목표
-  String? collection2Shorttermgoal;
-  String? collection2Shorttermgoaldate;
-  String? collection2Shorttermgoalachieved;
-
-  //중기 목표
-  String? collection2Midtermgoal;
-  String? collection2Midtermgoaldate;
-  String? collection2Midtermgoalachieved;
-
-  //장기 목표
-  String? collection2Longtermgoal;
-  String? collection2Longtermgoaldate;
-  String? collection2Longtermgoalachieved;
-
-  //자기 소개
-  String? collection2Selfintroduction;
-
   //키 설정
   final _formKey = GlobalKey<FormState>();
 
@@ -158,13 +134,13 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
           },
         ),
       ]),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Center(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
               child: Column(
                 children: [
                   const SizedBox(height: 16),
@@ -212,154 +188,134 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
                               'assets/images/default_profile_image.png'),
                     ),
                   ),
-                  const SizedBox(
-                    height: 16.0,
-                  ),
-                  StreamBuilder<DocumentSnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('profiles')
-                        .doc(FirebaseAuth.instance.currentUser!.uid)
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData &&
-                          snapshot.data != null &&
-                          snapshot.data!.exists) {
-                        final data =
-                            snapshot.data!.data() as Map<String, dynamic>;
-                        return Stack(
-                          children: [
-                            Container(
-                              height: MediaQuery.of(context).size.height * 0.4,
-                              decoration: const BoxDecoration(
-                                color: Colors.blue,
-                              ),
-                            ),
-                            Positioned(
-                              left: 16,
-                              top: 32,
-                              child: IconButton(
-                                icon: const Icon(Icons.arrow_back,
-                                    color: Colors.white),
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: -64,
-                              child: CircleAvatar(
-                                radius: 80,
-                                backgroundColor: Colors.white,
-                                child: CircleAvatar(
-                                  radius: 76,
-                                  backgroundImage: NetworkImage(
-                                    data['photoUrl'],
-                                  ),
+                  const SizedBox(height: 20.0),
+
+                  ///FutureBuilder로 그리기 시작
+                  FutureBuilder<List<DocumentSnapshot>>(
+                    future: Future.wait([
+                      FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(FirebaseService.auth.currentUser!.uid)
+                          .get(),
+                      FirebaseFirestore.instance
+                          .collection('profiles')
+                          .doc(FirebaseService.auth.currentUser!.uid)
+                          .get(),
+                    ]),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<List<DocumentSnapshot>> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done &&
+                          snapshot.hasData) {
+                        final userDoc = snapshot.data![0];
+                        final profileDoc = snapshot.data![1];
+                        if (userDoc.exists && profileDoc.exists) {
+                          // users 콜렉션과 profiles 콜렉션 모두에 해당 문서가 존재하는 경우
+                          final userData =
+                              userDoc.data() as Map<String, dynamic>?;
+                          final profileData =
+                              profileDoc.data() as Map<String, dynamic>?;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(15.0),
+                                // 화면을 보여줌
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.5),
+                                      spreadRadius: 2,
+                                      blurRadius: 5,
+                                      offset: const Offset(
+                                          0, 3), // changes position of shadow
+                                    ),
+                                  ],
+                                  borderRadius: BorderRadius.circular(20.0),
                                 ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 180),
-                              child: Container(
-                                width: double.infinity,
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 16),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      data['nickname'],
-                                      style: const TextStyle(
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.bold,
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.9,
+                                      child: Card(
+                                        elevation: 5,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    '이름: ${userData?['name'] ?? ''}',
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 20,
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    width: 20,
+                                                  ),
+                                                  Text(
+                                                    '직업: ${profileData?['job'] ?? ''}',
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 20,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                '닉네임: ${userData?['nickname'] ?? ''}',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.grey[600],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      data['job'],
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    const Text(
-                                      '자기 소개',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      data['selfintroduction'],
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    const Text(
-                                      '인생 목표',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      data['lifegoal'],
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    const Text(
-                                      '단기 목표',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      data['shorttermgoal'],
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    const Text(
-                                      '중기 목표',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      data['midtermgoal'],
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    const Text(
-                                      '장기 목표',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      data['longtermgoal'],
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
+                                    const GoalsScreen(),
                                   ],
                                 ),
                               ),
-                            ),
-                          ],
-                        );
-                      } else {
-                        return Column(
-                          children: const [
-                            Padding(
+                              // 추가적인 위젯 등
+                            ],
+                          );
+                        } else {
+                          // profiles 콜렉션에 해당 문서가 없는 경우
+                          return Column(
+                            children: const [
+                              Padding(
+                                  padding: EdgeInsets.all(12.0),
+                                  child: Text('프로필 등록을 한 적이 없으시네요!')),
+                              Padding(
+                                  padding: EdgeInsets.all(12.0),
+                                  child: Text('우측 상단 펜 아이콘을 클릭해 등록부터 해 주세요.')),
+                              Padding(
                                 padding: EdgeInsets.all(12.0),
-                                child: Text('우측 상단 펜 아이콘을 클릭해 등록부터 해 주세요.')),
-                            Padding(
-                              padding: EdgeInsets.all(12.0),
-                              child: Text(' 사진 변경은 이 페이지에서도 할 수 있습니다.'),
-                            ),
-                          ],
-                        );
+                                child: Text(' 사진 변경은 이 페이지에서도 할 수 있습니다.'),
+                              ),
+                            ],
+                          );
+                        }
+                      } else {
+                        // Future가 완료되지 않은 경우, 로딩 중 표시
+                        return const CircularProgressIndicator();
                       }
                     },
                   ),

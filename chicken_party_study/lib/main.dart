@@ -1,3 +1,6 @@
+import 'package:chicken_patry_study/views/home_screen/home.dart';
+import 'package:chicken_patry_study/views/login_screen/login_screen.dart';
+import 'package:chicken_patry_study/views/profile_screen/public_profile_screen.dart';
 import 'package:chicken_patry_study/views/splash_screen/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -17,9 +20,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const GetMaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      home: const SplashScreen(),
+      getPages: [
+        GetPage(
+            name: '/',
+            page: () => Home(
+                  isloggedin: true,
+                )),
+        GetPage(
+            name: '/login',
+            page: () => const LoginScreen(
+                  onLoggedIn: false,
+                )),
+        GetPage(
+            name: '/public-profile', page: () => const PublicProfileScreen()),
+      ],
     );
   }
 }
