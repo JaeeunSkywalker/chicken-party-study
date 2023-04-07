@@ -1,12 +1,12 @@
 // ignore_for_file: prefer_final_fields
 import 'dart:io';
 
+import 'package:chicken_patry_study/app_cache/app_cache.dart';
 import 'package:chicken_patry_study/services/firebase_service.dart';
 import 'package:chicken_patry_study/views/home_screen/home.dart';
 import 'package:chicken_patry_study/views/profile_screen/goals.dart';
 import 'package:chicken_patry_study/views/profile_screen/private_profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -105,7 +105,8 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
 
   //파이어스토어에서 기존 사진을 삭제함
   Future<void> _deleteProfileImage() async {
-    final user = FirebaseService.auth.currentUser;
+    final user = FirebaseService.auth.currentUser!;
+    // ignore: unnecessary_null_comparison
     if (user == null) return;
 
     // Firebase Storage에서 프로필 이미지 삭제
@@ -119,7 +120,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
     });
   }
 
-  String? userPhotoUrl = FirebaseAuth.instance.currentUser!.photoURL;
+  String? userPhotoUrl = FirebaseService.auth.currentUser!.photoURL;
 
   //키 설정
   final _formKey = GlobalKey<FormState>();
@@ -131,7 +132,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
-              Get.to(() => Home(isloggedin: true));
+              Get.to(() => Home(isloggedin: AppCache.getCachedisLoggedin()));
             },
           ),
           title: const Align(
@@ -206,133 +207,139 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
 
                   ///FutureBuilder로 그리기 시작
                   FutureBuilder<List<DocumentSnapshot>>(
-                    future: Future.wait([
-                      FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(FirebaseService.auth.currentUser!.uid)
-                          .get(),
-                      FirebaseFirestore.instance
-                          .collection('profiles')
-                          .doc(FirebaseService.auth.currentUser!.uid)
-                          .get(),
-                    ]),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<List<DocumentSnapshot>> snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done &&
-                          snapshot.hasData) {
-                        final userDoc = snapshot.data![0];
-                        final profileDoc = snapshot.data![1];
-                        if (userDoc.exists && profileDoc.exists) {
-                          // users 콜렉션과 profiles 콜렉션 모두에 해당 문서가 존재하는 경우
-                          final userData =
-                              userDoc.data() as Map<String, dynamic>?;
-                          final profileData =
-                              profileDoc.data() as Map<String, dynamic>?;
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(15.0),
-                                // 화면을 보여줌
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      spreadRadius: 2,
-                                      blurRadius: 5,
-                                      offset: const Offset(
-                                          0, 3), // changes position of shadow
-                                    ),
-                                  ],
-                                  borderRadius: BorderRadius.circular(20.0),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      width: MediaQuery.of(context).size.width *
-                                          0.9,
-                                      child: Card(
-                                        elevation: 5,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(16),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    '이름: ${userData?['name'] ?? ''}',
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 20,
+                      future: Future.wait([
+                        FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(FirebaseService.auth.currentUser!.uid)
+                            .get(),
+                        FirebaseFirestore.instance
+                            .collection('profiles')
+                            .doc(FirebaseService.auth.currentUser!.uid)
+                            .get(),
+                      ]),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<List<DocumentSnapshot>> snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done &&
+                            snapshot.hasData) {
+                          final userDoc = snapshot.data![0];
+                          final profileDoc = snapshot.data![1];
+                          if (userDoc.exists && profileDoc.exists) {
+                            // users 콜렉션과 profiles 콜렉션 모두에 해당 문서가 존재하는 경우
+                            final userData =
+                                userDoc.data() as Map<String, dynamic>?;
+                            final profileData =
+                                profileDoc.data() as Map<String, dynamic>?;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(15.0),
+                                  // 화면을 보여줌
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        spreadRadius: 2,
+                                        blurRadius: 5,
+                                        offset: const Offset(
+                                            0, 3), // changes position of shadow
+                                      ),
+                                    ],
+                                    borderRadius: BorderRadius.circular(20.0),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.9,
+                                        child: Card(
+                                          elevation: 5,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(16),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: [
+                                                    Expanded(
+                                                      child: Text(
+                                                        '이름: ${userData?['name'] ?? ''}',
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 20,
+                                                        ),
+                                                      ),
                                                     ),
-                                                  ),
-                                                  Container(
-                                                    width: 20,
-                                                  ),
-                                                  Text(
-                                                    '직업: ${profileData?['job'] ?? ''}',
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 20,
+                                                    Container(
+                                                      width: 20,
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                '닉네임: ${userData?['nickname'] ?? ''}',
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.grey[600],
+                                                    Expanded(
+                                                      child: Text(
+                                                        '직업: ${profileData?['job'] ?? ''}',
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 20,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ),
-                                            ],
+                                                const SizedBox(height: 8),
+                                                Text(
+                                                  '닉네임: ${userData?['nickname'] ?? ''}',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.grey[600],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    const GoalsScreen(),
-                                  ],
+                                      const GoalsScreen(),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              // 추가적인 위젯 등
-                            ],
-                          );
+                                // 추가적인 위젯 등
+                              ],
+                            );
+                          } else {
+                            // profiles 콜렉션에 해당 문서가 없는 경우
+                            return Column(
+                              children: const [
+                                Padding(
+                                    padding: EdgeInsets.all(12.0),
+                                    child: Text('프로필 등록을 한 적이 없으시네요!')),
+                                Padding(
+                                    padding: EdgeInsets.all(12.0),
+                                    child:
+                                        Text('우측 상단 펜 아이콘을 클릭해 등록부터 해 주세요.')),
+                                Padding(
+                                  padding: EdgeInsets.all(12.0),
+                                  child: Text(' 사진 변경은 이 페이지에서도 할 수 있습니다.'),
+                                ),
+                              ],
+                            );
+                          }
                         } else {
-                          // profiles 콜렉션에 해당 문서가 없는 경우
-                          return Column(
-                            children: const [
-                              Padding(
-                                  padding: EdgeInsets.all(12.0),
-                                  child: Text('프로필 등록을 한 적이 없으시네요!')),
-                              Padding(
-                                  padding: EdgeInsets.all(12.0),
-                                  child: Text('우측 상단 펜 아이콘을 클릭해 등록부터 해 주세요.')),
-                              Padding(
-                                padding: EdgeInsets.all(12.0),
-                                child: Text(' 사진 변경은 이 페이지에서도 할 수 있습니다.'),
-                              ),
-                            ],
-                          );
+                          // Future가 완료되지 않은 경우, 로딩 중 표시
+                          return const CircularProgressIndicator();
                         }
-                      } else {
-                        // Future가 완료되지 않은 경우, 로딩 중 표시
-                        return const CircularProgressIndicator();
-                      }
-                    },
-                  ),
+                      }),
                 ],
               ),
             ),

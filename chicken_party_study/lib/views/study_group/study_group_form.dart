@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+import '../../app_cache/app_cache.dart';
+
 class MakeGroupStudy extends StatefulWidget {
   const MakeGroupStudy({super.key});
 
@@ -26,6 +28,7 @@ class MakeGroupStudyState extends State<MakeGroupStudy> {
   List<String> tags = [];
   String leaderName = '';
   String studyLeader = '';
+  List<String> participants = [];
 
   String? nickname;
 
@@ -274,10 +277,10 @@ class MakeGroupStudyState extends State<MakeGroupStudy> {
                     firestore.collection('studiesOnRecruiting');
 
                 //랜덤한 아이디를 생성합니다.
-                String newnewGroupId = studiesRef.doc().id;
+                String newGroupId = studiesRef.doc().id;
 
                 // 파이어스토어에 데이터를 추가합니다.
-                await studiesRef.doc(newnewGroupId).set({
+                await studiesRef.doc(newGroupId).set({
                   'groupName': groupName,
                   'groupDescription': groupDescription,
                   'studyGoal': studyGoal,
@@ -288,7 +291,9 @@ class MakeGroupStudyState extends State<MakeGroupStudy> {
                   'startDate': formattedStartDate,
                   'endDate': formattedEndDate,
                   'studyLeader': nickname,
-                  'newGroupId': newnewGroupId,
+                  'newGroupId': newGroupId,
+                  'participants': [nickname!],
+                  'currentMembers': 1,
                 }).then((value) {
                   // 데이터 추가 성공
                   showDialog(
@@ -301,7 +306,10 @@ class MakeGroupStudyState extends State<MakeGroupStudy> {
                       actions: [
                         TextButton(
                           onPressed: () async {
-                            Get.to(() => Home(isloggedin: true));
+                            Get.back(); // 알림 대화상자 닫기
+                            Get.offAll(() => Home(
+                                isloggedin:
+                                    AppCache.getCachedisLoggedin())); // 이전 화면
                           },
                           child: const Center(child: Text('확인')),
                         ),

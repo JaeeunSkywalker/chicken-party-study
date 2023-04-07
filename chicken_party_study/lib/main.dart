@@ -1,3 +1,4 @@
+import 'package:chicken_patry_study/app_cache/app_cache.dart';
 import 'package:chicken_patry_study/views/home_screen/home.dart';
 import 'package:chicken_patry_study/views/login_screen/login_screen.dart';
 import 'package:chicken_patry_study/views/profile_screen/public_profile_screen.dart';
@@ -27,12 +28,12 @@ class MyApp extends StatelessWidget {
         GetPage(
             name: '/',
             page: () => Home(
-                  isloggedin: true,
+                  isloggedin: AppCache.getCachedisLoggedin(),
                 )),
         GetPage(
             name: '/login',
             page: () => const LoginScreen(
-                  onLoggedIn: false,
+                  isloggedin: false,
                 )),
         GetPage(
             name: '/public-profile', page: () => const PublicProfileScreen()),

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:chicken_patry_study/app_cache/app_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -12,7 +13,7 @@ class SigninScreen extends StatefulWidget {
   const SigninScreen(
       // ignore: avoid_types_as_parameter_names
       {super.key,
-      required bool isLoggedin});
+      required bool isloggedin});
 
   @override
   State<SigninScreen> createState() => _SigninState();
@@ -33,7 +34,7 @@ class _SigninState extends State<SigninScreen> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
-              Get.to(() => Home(isloggedin: false));
+              Get.to(() => const Home(isloggedin: false));
             },
           ),
           title: const Align(
@@ -236,7 +237,7 @@ class _SigninState extends State<SigninScreen> {
       Timer(const Duration(seconds: 2), () {
         if (ScaffoldMessenger.of(context).mounted) {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          Get.to(() => const LoginScreen(onLoggedIn: false));
+          Get.to(() => LoginScreen(isloggedin: AppCache.getCachedisLoggedin()));
         }
       });
     } catch (e) {

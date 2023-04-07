@@ -40,6 +40,65 @@ class StudyDetailsScreenState extends State<StudyDetailsScreen> {
     }
   }
 
+  //참여하기 버튼을 눌렀을 때 실행되는 메서드
+  //studiesOnRrecruting 컬렉션의 currentMembers 필드를 업데이트하고,
+  //만약 최대 인원에 도달하면 에러 메시지를 표시한다.
+  Future<void> joinStudy(String newGroupId) async {
+    try {
+      final user = FirebaseService.auth.currentUser!.uid;
+      final studyRef1 = FirebaseService.firestore
+          .collection('studiesOnRecruiting')
+          .doc(newGroupId);
+      final studyRef2 = FirebaseService.firestore
+          .collection('users')
+          .doc(user); //닉네임 가져 오기 위해 만듬
+      final snapshot1 = await studyRef1.get();
+      final snapshot2 = await studyRef2.get();
+      if (snapshot1.exists && snapshot2.exists) {
+        final data1 = snapshot1.data()!;
+        final data2 = snapshot2.data()!;
+        final currentMembers = data1['currentMembers'] as int; //현재 인원
+        final maxMembers = data1['numberOfDefaultParticipants'] as int; //최대 인원
+        final participants =
+            List<String>.from(data1['participants'] ?? <dynamic>[]); //참여 인원
+
+        final String myNickname = data2['nickname'];
+        if (participants.contains(myNickname)) {
+          Get.snackbar(
+            '잠깐만요!',
+            '이미 참여되어 있습니다.',
+            snackPosition: SnackPosition.BOTTOM,
+          );
+          return;
+        }
+
+        if (currentMembers >= maxMembers) {
+          Get.snackbar(
+            '앗...',
+            '정원이 초과되어 참여할 수 없습니다.',
+            snackPosition: SnackPosition.BOTTOM,
+          );
+          return;
+        }
+
+        participants.add(myNickname);
+        await studyRef1.update({
+          'currentMembers': currentMembers + 1,
+          'participants': participants,
+        });
+        Get.snackbar(
+          'WOW...',
+          '스터디 참여에 성공했습니다.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print('에러 난 이유: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,7 +106,7 @@ class StudyDetailsScreenState extends State<StudyDetailsScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Get.to(() => Home(isloggedin: AppCache.getCachedisLoggedin()));
+            Get.offAll(() => Home(isloggedin: AppCache.getCachedisLoggedin()));
           },
         ),
         title: Align(
@@ -81,53 +140,57 @@ class StudyDetailsScreenState extends State<StudyDetailsScreen> {
             title: const Text('스터디 설명'),
             subtitle: Text(studyDetails['groupDescription'] ?? ''),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              if (studyDetails['currentMembers'] <
-                  studyDetails['numberOfDefaultParticipants']) {
-                // 스터디 참여
-                await joinStudy(studyDetails['newGroupId']);
-              } else {
-                // 스터디 참여 불가
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('인원 문제로 스터디에 참여할 수 없습니다.')),
+
+          ///스터디 참여/나가기 버튼 분기 처리 한 곳///
+          FutureBuilder<bool>(
+            future: FirebaseService().checkJoinOrNot(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                bool isJoined = snapshot.data!;
+                return isJoined
+                    ? ElevatedButton(
+                        onPressed: () async {
+                          // 스터디 나가기
+                          await leaveStudy(widget.newGroupId);
+                        },
+                        child: const Text('스터디 나가기'),
+                      )
+                    : ElevatedButton(
+                        onPressed: () async {
+                          // 스터디 참여
+                          await joinStudy(widget.newGroupId);
+                        },
+                        child: const Text('스터디 참여하기'),
+                      );
+              } else if (snapshot.hasError) {
+                // 에러 처리
+                return Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(12.0),
+                    child: Text(
+                      '오류가 발생했습니다...',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
                 );
+              } else {
+                // 로딩 중
+                return const Center(child: CircularProgressIndicator());
               }
             },
-            child: const Text('참여하기'),
           ),
         ],
       ),
     );
   }
 
-////////////////////////////////////////////////////////////////////////////////
-  ///스터디 조인 메서드////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-  Future<void> joinStudy(String studyId) async {
-    final docRef = FirebaseFirestore.instance
-        .collection('studiesOnRecruiting')
-        .doc(studyDetails['currentMembers']);
-
-    await FirebaseFirestore.instance.runTransaction((transaction) async {
-      final doc = await transaction.get(docRef);
-      final currentMembers = doc.data()!['currentMembers'] as int;
-      final maxMembers = doc.data()!['numberOfDefaultParticipants'] as int;
-
-      if (currentMembers < maxMembers) {
-        transaction.update(docRef, {
-          'currentMembers': currentMembers + 1,
-        });
-      } else {
-        // 참여 가능한 인원 수를 초과하면 에러 처리
-        throw Exception('스터디 정원이 초과했습니다.');
-      }
-    });
-  }
-
-////////////////////////////////////////////////////////////////////////////////
-  ///스터디 리브 메서드////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+/////스터디 리브 메서드////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
   Future<void> leaveStudy(String studyId) async {
     final docRef = FirebaseFirestore.instance
         .collection('studiesOnRecruiting')
@@ -143,7 +206,7 @@ class StudyDetailsScreenState extends State<StudyDetailsScreen> {
         });
       } else {
         // 현재 인원 수가 0보다 작을 수 없음
-        throw Exception('스터디 진행이 가능한 인원수가 아닙니다.');
+        throw Exception('현재 인원이 0보다 작을 수는 없습니다.');
       }
     });
   }

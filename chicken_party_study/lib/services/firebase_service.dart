@@ -18,10 +18,10 @@ class FirebaseService {
   //이미지 업로드하기
   Future<String?> uploadImage(File file) async {
     try {
-      final user = FirebaseAuth.instance.currentUser;
+      final user = FirebaseAuth.instance.currentUser!;
       final storageRef = FirebaseStorage.instance
           .ref()
-          .child(user!.uid)
+          .child(user.uid)
           .child('profile_image.jpg');
       await storageRef.putFile(file);
       final downloadUrl = await storageRef.getDownloadURL();
@@ -34,10 +34,10 @@ class FirebaseService {
   //이미지 읽어 오기
   Future<Uint8List?> getImage() async {
     try {
-      final user = FirebaseAuth.instance.currentUser;
+      final user = FirebaseAuth.instance.currentUser!;
       final storageRef = FirebaseStorage.instance
           .ref()
-          .child(user!.uid)
+          .child(user.uid)
           .child('profile_image.jpg');
       final imageData = await storageRef.getData();
       return imageData;
@@ -93,8 +93,17 @@ class FirebaseService {
     return documentReference.get();
   }
 
-  //현재 로그인한 사용자 닉네임 가져 오는 메서드
-  Future<String> getFirebaseUserNickname() async {
+  //현재 로그인한 사용자 닉네임을 가져 오는 메서드
+  Future<String?> getFirebaseUserNickname() async {
+    final user = auth.currentUser?.uid;
+    final userData = firestore.collection('users').doc(user);
+    final snapshot = await userData.get();
+    final userNickname = snapshot.get('nickname');
+    return userNickname;
+  }
+
+  //현재 로그인한 사용자 이름을 가져 오는 메서드
+  Future<String> getFirebaseUserName() async {
     final uid = auth.currentUser!.uid;
     final userData = firestore.collection('users').doc(uid);
     final snapshot = await userData.get();
@@ -102,12 +111,49 @@ class FirebaseService {
     return userNickname;
   }
 
-  //현재 로그인한 사용자 이름 가져 오는 메서드
-  Future<String> getFirebaseUserName() async {
-    final uid = auth.currentUser!.uid;
-    final userData = firestore.collection('users').doc(uid);
-    final snapshot = await userData.get();
-    final userNickname = snapshot.get('nickname');
-    return userNickname;
+  //studiesOnRecruiting 콜렉션에서 participants 필드의 array를 가져오는 메서드
+  //true or false를 반환할 것임
+  Future<bool> checkJoinOrNot() async {
+    final user = FirebaseService.auth.currentUser!;
+    //로그인한 사용자가 없는 상황
+    // ignore: unnecessary_null_comparison
+    if (user == null) {
+      //첫 번째 null check
+      return true;
+    }
+
+    final participantsDoc = await FirebaseFirestore.instance
+        .collection('studiesOnRecruiting')
+        .doc(user.uid)
+        .get();
+
+    //내가 스터디를 개설하지 않은 상황
+    if (!participantsDoc.exists || participantsDoc.data() == null) {
+      return true;
+    }
+
+    final participantsData = participantsDoc.data()!;
+    // ignore: unused_local_variable
+    final participants = participantsData.containsKey('participants')
+        ? participantsData['participants'] as List<String>
+        : <String>[];
+
+    final nicknameDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
+
+    //로그인한 사용자가 없는 상황
+    if (!nicknameDoc.exists || nicknameDoc.data() == null) {
+      return true;
+    }
+
+    final nicknameData = nicknameDoc.data()!;
+    // ignore: unused_local_variable
+    final nickname = nicknameData.containsKey('nickname')
+        ? nicknameData['nickname'] as String
+        : '';
+
+    return participantsData['participants'].contains(nicknameData['nickname']);
   }
 }

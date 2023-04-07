@@ -6,8 +6,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
 class LoginScreen extends StatefulWidget {
-  final bool onLoggedIn; // 새로 추가한 멤버 변수
-  const LoginScreen({Key? key, required this.onLoggedIn}) : super(key: key);
+  final bool isloggedin; // 새로 추가한 멤버 변수
+  const LoginScreen({Key? key, required this.isloggedin}) : super(key: key);
 
   @override
   LoginScreenState createState() => LoginScreenState();
@@ -20,7 +20,7 @@ class LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  bool isLoggedin = false; // 새로 추가한 멤버 변수
+  bool isloggedin = false; // 새로 추가한 멤버 변수
 
   Future<void> _signInWithEmailAndPassword() async {
     setState(() {
@@ -53,10 +53,11 @@ class LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      // User exists, set isLoggedin to true and navigate to home screen
+      // User exists, set isloggedin to true and navigate to home screen
       setState(() {
         _isLoading = false;
-        AppCache.saveCacheisLoggedin(true);
+        AppCache.saveCacheisLoggedin();
+        Get.to(() => Home(isloggedin: AppCache.getCachedisLoggedin()));
       });
 
       // ignore: use_build_context_synchronously
@@ -84,7 +85,7 @@ class LoginScreenState extends State<LoginScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Get.to(() => Home(isloggedin: false));
+            Get.to(() => const Home(isloggedin: false));
           },
         ),
         title: const Align(
@@ -94,59 +95,65 @@ class LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 50.0),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return '이메일을 입력해 주세요.';
-                  }
-                  return null;
-                },
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  const SizedBox(height: 50.0),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '이메일을 입력해 주세요.';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 24.0),
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '비밀번호를 입력해 주세요.';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 24.0),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await _signInWithEmailAndPassword();
+                      if (AppCache.getCachedisLoggedin()) {
+                        Get.to(() =>
+                            Home(isloggedin: AppCache.getCachedisLoggedin()));
+                      } else {
+                        // ignore: use_build_context_synchronously
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text("사용자 정보가 바르지 않습니다.\n관리자에게 문의하세요.")));
+                      }
+                    },
+                    child: const Text('로그인'),
+                  ),
+                  const SizedBox(height: 24.0),
+                ],
               ),
-              const SizedBox(height: 24.0),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return '비밀번호를 입력해 주세요.';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24.0),
-              ElevatedButton(
-                onPressed: () async {
-                  await _signInWithEmailAndPassword();
-                  if (AppCache.getCachedisLoggedin()) {
-                    Get.to(() => Home(isloggedin: true));
-                  } else {
-                    // ignore: use_build_context_synchronously
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text("사용자 정보가 바르지 않습니다.\n관리자에게 문의하세요.")));
-                  }
-                },
-                child: const Text('로그인'),
-              ),
-              const SizedBox(height: 24.0),
-            ],
+            ),
           ),
         ),
       ),

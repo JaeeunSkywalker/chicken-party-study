@@ -1,3 +1,5 @@
+import 'package:chicken_patry_study/app_cache/app_cache.dart';
+import 'package:chicken_patry_study/services/firebase_service.dart';
 import 'package:chicken_patry_study/widgets/appbar_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -13,57 +15,20 @@ import '../study_group/study_group_form.dart';
 
 // ignore: must_be_immutable
 class Home extends StatefulWidget {
-  late bool isloggedin;
-  String nickname = '';
-  Home({Key? key, required this.isloggedin}) : super(key: key);
+  final bool isloggedin;
+  const Home({Key? key, required this.isloggedin}) : super(key: key);
 
   @override
   HomeState createState() => HomeState();
 }
 
 class HomeState extends State<Home> with WidgetsBindingObserver {
+  var isloggedin = false;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    final box = GetStorage();
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.detached) {
-      box.write('isLoggedin', false);
-    }
-  }
-
-  //flutter_hooks 적용
-  //실행하려면 함수 호출하면 됨
-  //일반적으로 이런 함수는 해당 상태를 관리하는 위젯의 클래스 내부에 작성된다.
-  void useLogoutOnAppCloseEffect() {
-    useEffect(() {
-      final box = GetStorage();
-      void callback() {
-        // 로그인 캐시 삭제 코드
-        box.write('isLoggedin', false);
-      }
-
-      WidgetsBinding.instance.addObserver(
-        AppLifecycleObserver(
-          didPause: callback,
-          didTerminate: callback,
-        ),
-      );
-      return () {
-        WidgetsBinding.instance.removeObserver(this);
-      };
-    }, []);
+    isloggedin = widget.isloggedin;
   }
 
   List<BottomNavigationBarItem> items = [
@@ -84,6 +49,22 @@ class HomeState extends State<Home> with WidgetsBindingObserver {
   late DateTime startdate;
   late DateTime enddate;
   String newGroupId = '';
+  List<dynamic> participants = [];
+  bool isParticipant = false;
+
+  Future<bool> getNickname1() async {
+    // users 콜렉션에서 nickname 가져오는 메서드
+    String uid = FirebaseService.auth.currentUser!.uid;
+    DocumentSnapshot<Map<String, dynamic>> nicknameSnapshot =
+        await FirebaseService.firestore.collection('users').doc(uid).get();
+    final String nickname = nicknameSnapshot.get('nickname');
+    bool isParticipant = participants.contains(nickname);
+    return isParticipant;
+  }
+
+  Future getNickname2() async {
+    isParticipant = await getNickname1();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +74,8 @@ class HomeState extends State<Home> with WidgetsBindingObserver {
         bottomNavigationBar: MainBottomNavigationBar(
           items: items,
         ),
-        floatingActionButton: widget.isloggedin == true
+        floatingActionButton: (widget.isloggedin &&
+                AppCache.getCachedisLoggedin() == true)
             ? FloatingActionButton(
                 onPressed: () {
                   showDialog(
@@ -140,12 +122,16 @@ class HomeState extends State<Home> with WidgetsBindingObserver {
                 itemCount: studios.length,
                 itemBuilder: (BuildContext context, int index) {
                   final studio = studios[index];
-
                   String startdate = (studio['startDate']);
                   String enddate = (studio['endDate']);
+
                   //스터디 공개 유무에 따라 노출 처리
-                  //isPublic이 false인 스터디는 개설자에게만 노출된다.
-                  if (studio['isPublic'] == true) {
+                  //isPublic이 false인 스터디는 참여자에게만 노출된다.
+                  bool isPublic = studio['isPublic'];
+                  participants = studio['participants'];
+
+                  //public방이거나 내가 참여한 방이어야만 뜬다
+                  if (true) {
                     return InkWell(
                       child: Container(
                         decoration: BoxDecoration(
@@ -173,19 +159,15 @@ class HomeState extends State<Home> with WidgetsBindingObserver {
                                 .collection('studiesOnRecruiting')
                                 .doc(studio.id)
                                 .get();
-
                             // 이후 studyData를 study_details_screen으로 전달하여 사용할 수 있다.
                             // ignore: unused_local_variable
                             final studyData = docSnapshot.data();
-
                             Get.to(() =>
                                 StudyDetailsScreen(newGroupId: studio.id));
                           },
                         ),
                       ),
                     );
-                  } else {
-                    return Container();
                   }
                 },
               ),

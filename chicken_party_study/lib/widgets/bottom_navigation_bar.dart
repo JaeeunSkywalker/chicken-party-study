@@ -1,4 +1,5 @@
 import 'package:chicken_patry_study/consts/colors.dart';
+import 'package:chicken_patry_study/services/firebase_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -30,7 +31,8 @@ class MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
       _currentIndex = index;
       if (_currentIndex == 2) {
         // "내 프로필" 버튼을 눌렀을 때
-        if (AppCache.getCachedisLoggedin() == true) {
+        if (AppCache.getCachedisLoggedin() == true &&
+            FirebaseService.auth.currentUser != null) {
           // 로그인이 되어 있으면
           Get.to(() => const PublicProfileScreen()); // ProfileScreen으로 이동
         } else {
