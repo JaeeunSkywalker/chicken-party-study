@@ -3,12 +3,9 @@ import 'package:chicken_patry_study/services/firebase_service.dart';
 import 'package:chicken_patry_study/widgets/appbar_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 
 import '../../consts/consts.dart';
-import '../../flutter_hooks/app_lifecycle_observer.dart';
 import '../../widgets/bottom_navigation_bar.dart';
 import '../study_details_screen/study_details_screen.dart';
 import '../study_group/study_group_form.dart';

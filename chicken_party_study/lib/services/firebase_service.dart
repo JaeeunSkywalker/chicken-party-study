@@ -113,47 +113,31 @@ class FirebaseService {
 
   //studiesOnRecruiting 콜렉션에서 participants 필드의 array를 가져오는 메서드
   //true or false를 반환할 것임
-  Future<bool> checkJoinOrNot() async {
-    final user = FirebaseService.auth.currentUser!;
-    //로그인한 사용자가 없는 상황
-    // ignore: unnecessary_null_comparison
-    if (user == null) {
-      //첫 번째 null check
-      return true;
+  Future<bool> checkJoinOrNot(newGroupId) async {
+    try {
+      final user = FirebaseService.auth.currentUser!.uid;
+      final studyRef1 = FirebaseService.firestore
+          .collection('studiesOnRecruiting')
+          .doc(newGroupId);
+      final studyRef2 = FirebaseService.firestore
+          .collection('users')
+          .doc(user); //닉네임 가져 오기 위해 만듬
+      final snapshot1 = await studyRef1.get();
+      final snapshot2 = await studyRef2.get();
+      if (snapshot1.exists && snapshot2.exists) {
+        final data1 = snapshot1.data()!;
+        final data2 = snapshot2.data()!;
+        final currentMembers = data1['currentMembers'] as int; //현재 인원
+        final maxMembers = data1['numberOfDefaultParticipants'] as int; //최대 인원
+        final participants =
+            List<String>.from(data1['participants'] ?? <dynamic>[]); //참여 인원
+        final String myNickname = data2['nickname'];
+
+        return (participants.contains(myNickname)) ? true : false;
+      }
+    } catch (e) {
+      throw Exception("checkJoinOrNot error: $e");
     }
-
-    final participantsDoc = await FirebaseFirestore.instance
-        .collection('studiesOnRecruiting')
-        .doc(user.uid)
-        .get();
-
-    //내가 스터디를 개설하지 않은 상황
-    if (!participantsDoc.exists || participantsDoc.data() == null) {
-      return true;
-    }
-
-    final participantsData = participantsDoc.data()!;
-    // ignore: unused_local_variable
-    final participants = participantsData.containsKey('participants')
-        ? participantsData['participants'] as List<String>
-        : <String>[];
-
-    final nicknameDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .get();
-
-    //로그인한 사용자가 없는 상황
-    if (!nicknameDoc.exists || nicknameDoc.data() == null) {
-      return true;
-    }
-
-    final nicknameData = nicknameDoc.data()!;
-    // ignore: unused_local_variable
-    final nickname = nicknameData.containsKey('nickname')
-        ? nicknameData['nickname'] as String
-        : '';
-
-    return participantsData['participants'].contains(nicknameData['nickname']);
+    throw Exception("checkJoinOrNot error: unknown");
   }
 }

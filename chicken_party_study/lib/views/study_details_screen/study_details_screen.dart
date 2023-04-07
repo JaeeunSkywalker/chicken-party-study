@@ -143,7 +143,7 @@ class StudyDetailsScreenState extends State<StudyDetailsScreen> {
 
           ///스터디 참여/나가기 버튼 분기 처리 한 곳///
           FutureBuilder<bool>(
-            future: FirebaseService().checkJoinOrNot(),
+            future: FirebaseService().checkJoinOrNot(widget.newGroupId),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 bool isJoined = snapshot.data!;
@@ -172,7 +172,7 @@ class StudyDetailsScreenState extends State<StudyDetailsScreen> {
                   child: const Padding(
                     padding: EdgeInsets.all(12.0),
                     child: Text(
-                      '오류가 발생했습니다...',
+                      '로그인을 해 주세요.',
                       style: TextStyle(fontSize: 20),
                     ),
                   ),
