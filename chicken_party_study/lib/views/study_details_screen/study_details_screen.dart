@@ -1,4 +1,5 @@
 import 'package:chicken_patry_study/app_cache/app_cache.dart';
+import 'package:chicken_patry_study/views/search_screen/search_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,7 +10,8 @@ import '../home_screen/home.dart';
 class StudyDetailsScreen extends StatefulWidget {
   final String newGroupId;
 
-  const StudyDetailsScreen({Key? key, required this.newGroupId})
+  const StudyDetailsScreen(
+      {Key? key, required this.newGroupId, required Study study})
       : super(key: key);
 
   @override
@@ -151,7 +153,7 @@ class StudyDetailsScreenState extends State<StudyDetailsScreen> {
                     ? ElevatedButton(
                         onPressed: () async {
                           // 스터디 나가기
-                          await leaveStudy(widget.newGroupId);
+                          await leaveStudy(context, widget.newGroupId);
                         },
                         child: const Text('스터디 나가기'),
                       )
@@ -191,23 +193,81 @@ class StudyDetailsScreenState extends State<StudyDetailsScreen> {
 //////////////////////////////////////////////////////////////////////////////////
 /////스터디 리브 메서드////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
-  Future<void> leaveStudy(String studyId) async {
-    final docRef = FirebaseFirestore.instance
-        .collection('studiesOnRecruiting')
-        .doc(studyDetails['currentMembers']);
+  Future<void> leaveStudy(BuildContext context, String studyId) async {
+    try {
+      final user = FirebaseService.auth.currentUser!.uid;
+      final studyRef1 = FirebaseService.firestore
+          .collection('studiesOnRecruiting')
+          .doc(widget.newGroupId);
+      final studyRef2 = FirebaseService.firestore
+          .collection('users')
+          .doc(user); //닉네임 가져 오기 위해 만듬
+      final snapshot1 = await studyRef1.get();
+      final snapshot2 = await studyRef2.get();
+      if (snapshot1.exists && snapshot2.exists) {
+        final data1 = snapshot1.data()!;
+        final data2 = snapshot2.data()!;
+        final currentMembers = data1['currentMembers'] as int; //현재 인원
+        // ignore: unused_local_variable
+        final maxMembers = data1['numberOfDefaultParticipants'] as int; //최대 인원
+        final participants =
+            List<String>.from(data1['participants'] ?? <dynamic>[]); //참여 인원
 
-    await FirebaseFirestore.instance.runTransaction((transaction) async {
-      final doc = await transaction.get(docRef);
-      final currentMembers = doc.data()!['currentMembers'] as int;
+        final String myNickname = data2['nickname'];
 
-      if (currentMembers > 0) {
-        transaction.update(docRef, {
-          'currentMembers': currentMembers - 1,
-        });
-      } else {
-        // 현재 인원 수가 0보다 작을 수 없음
-        throw Exception('현재 인원이 0보다 작을 수는 없습니다.');
+        if (participants.contains(myNickname)) {
+          participants.remove(myNickname);
+          await studyRef1.update({
+            'currentMembers': currentMembers - 1,
+            'participants': participants,
+          });
+
+          final updatedSnapshot = await studyRef1.get();
+          final updatedData = updatedSnapshot.data();
+          final updatedCurrentMembers = updatedData?['currentMembers'] as int;
+
+          if (updatedCurrentMembers == 0) {
+            final studySnapshot = await studyRef1.get();
+            if (studySnapshot.exists) {
+              try {
+                await studyRef1.delete();
+
+                // ignore: use_build_context_synchronously
+                await showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('알림', textAlign: TextAlign.center),
+                      content: const Text('스터디가 삭제되었습니다.\n홈으로 돌아갑니다.',
+                          textAlign: TextAlign.center),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                builder: (context) => Home(
+                                  isloggedin: AppCache.getCachedisLoggedin(),
+                                ),
+                              ),
+                              (route) => false,
+                            );
+                            // 홈으로 이동하는 코드 추가
+                          },
+                          child: const Center(child: Text('확인')),
+                        ),
+                      ],
+                    );
+                  },
+                );
+                // ignore: empty_catches
+              } catch (e) {}
+            }
+          }
+        }
       }
-    });
+    } catch (e) {
+      // ignore: avoid_print
+      print('에러 난 이유: $e');
+    }
   }
 }

@@ -127,7 +127,9 @@ class FirebaseService {
       if (snapshot1.exists && snapshot2.exists) {
         final data1 = snapshot1.data()!;
         final data2 = snapshot2.data()!;
+        // ignore: unused_local_variable
         final currentMembers = data1['currentMembers'] as int; //현재 인원
+        // ignore: unused_local_variable
         final maxMembers = data1['numberOfDefaultParticipants'] as int; //최대 인원
         final participants =
             List<String>.from(data1['participants'] ?? <dynamic>[]); //참여 인원

@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 
 import '../../consts/consts.dart';
 import '../../widgets/bottom_navigation_bar.dart';
+import '../search_screen/search_screen.dart';
 import '../study_details_screen/study_details_screen.dart';
 import '../study_group/study_group_form.dart';
 
@@ -124,47 +125,50 @@ class HomeState extends State<Home> with WidgetsBindingObserver {
 
                   //스터디 공개 유무에 따라 노출 처리
                   //isPublic이 false인 스터디는 참여자에게만 노출된다.
+                  // ignore: unused_local_variable
                   bool isPublic = studio['isPublic'];
                   participants = studio['participants'];
 
                   //public방이거나 내가 참여한 방이어야만 뜬다
                   if (true) {
                     return InkWell(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: white,
-                          border: Border(
-                            bottom: BorderSide(
-                              width: 2,
-                              color: Colors.grey[300]!,
-                            ),
+                        child: Container(
+                      decoration: BoxDecoration(
+                        color: white,
+                        border: Border(
+                          bottom: BorderSide(
+                            width: 2,
+                            color: Colors.grey[300]!,
                           ),
-                        ),
-                        child: ListTile(
-                          title: Text(studio['studyGoal']),
-                          subtitle: Text(studio['groupDescription']),
-                          trailing: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text('시작일: $startdate'),
-                              Text('마감일: $enddate'),
-                            ],
-                          ),
-                          onTap: () async {
-                            final docSnapshot = await FirebaseFirestore.instance
-                                .collection('studiesOnRecruiting')
-                                .doc(studio.id)
-                                .get();
-                            // 이후 studyData를 study_details_screen으로 전달하여 사용할 수 있다.
-                            // ignore: unused_local_variable
-                            final studyData = docSnapshot.data();
-                            Get.to(() =>
-                                StudyDetailsScreen(newGroupId: studio.id));
-                          },
                         ),
                       ),
-                    );
+                      child: ListTile(
+                        title: Text(studio['studyGoal']),
+                        subtitle: Text(studio['groupDescription']),
+                        trailing: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text('시작일: $startdate'),
+                            Text('마감일: $enddate'),
+                          ],
+                        ),
+                        onTap: () async {
+                          final docSnapshot = await FirebaseFirestore.instance
+                              .collection('studiesOnRecruiting')
+                              .doc(studio.id)
+                              .get();
+                          final studyData = docSnapshot.data();
+                          if (studyData != null) {
+                            final study = Study.fromJson(studyData);
+                            Get.to(() => StudyDetailsScreen(
+                                  newGroupId: studio['newGroupId'],
+                                  study: study,
+                                ));
+                          }
+                        },
+                      ),
+                    ));
                   }
                 },
               ),

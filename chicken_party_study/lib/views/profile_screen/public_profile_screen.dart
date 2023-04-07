@@ -21,6 +21,7 @@ class PublicProfileScreen extends StatefulWidget {
 
 class _PublicProfileScreenState extends State<PublicProfileScreen> {
   ImageProvider<Object>? _imageProvider;
+  // ignore: unused_field
   String? _userNickname;
 
   @override

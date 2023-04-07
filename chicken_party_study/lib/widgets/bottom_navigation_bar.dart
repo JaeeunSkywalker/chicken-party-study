@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import '../app_cache/app_cache.dart';
 import '../views/profile_screen/public_profile_screen.dart';
+import '../views/search_screen/search_screen.dart';
 
 class MainBottomNavigationBar extends StatefulWidget {
   final List<BottomNavigationBarItem> items;
@@ -45,6 +46,8 @@ class MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
             backgroundColor: white,
           ); // LoginScreen으로 이동
         }
+      } else if (_currentIndex == 1) {
+        Get.offAll(() => const SearchScreen());
       }
     });
   }
