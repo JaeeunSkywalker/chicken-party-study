@@ -114,15 +114,12 @@ class HomeState extends State<Home> with WidgetsBindingObserver {
                     participants = studio['participants'];
 
                     // 로그인하지 않았을 때 isPublic이 false인 스터디는 안 보여준다.
-                    if (FirebaseService.auth.currentUser == null &&
-                        !isPublic &&
-                        isloggedin == false) {
+                    if (FirebaseService.auth.currentUser == null && !isPublic) {
                       return Container();
                     }
 
                     // 로그인 했을 때 isPublic이 false고 내가 참여되어 있지 않으면 안 나온다.
                     if (FirebaseService.auth.currentUser != null &&
-                        AppCache.getCachedisLoggedin() &&
                         !isPublic &&
                         !participants.contains(AppCache.getUserNickname())) {
                       return Container();

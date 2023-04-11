@@ -1,4 +1,3 @@
-import 'package:chicken_patry_study/app_cache/app_cache.dart';
 import 'package:chicken_patry_study/services/firebase_service.dart';
 import 'package:chicken_patry_study/views/study_details_screen/study_details_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

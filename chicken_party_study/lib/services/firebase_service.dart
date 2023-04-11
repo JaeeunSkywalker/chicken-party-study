@@ -107,8 +107,35 @@ class FirebaseService {
     final uid = auth.currentUser!.uid;
     final userData = firestore.collection('users').doc(uid);
     final snapshot = await userData.get();
-    final userNickname = snapshot.get('nickname');
-    return userNickname;
+    final userName = snapshot.get('name');
+    return userName;
+  }
+
+  //studyLeader 값을 가져 오는 메서드
+  Future<String> getStudyLeaderName() async {
+    final uid = auth.currentUser!.uid;
+    final userData = firestore.collection('studiesOnRecruiting').doc(uid);
+    final snapshot = await userData.get();
+    final studyLeaderName = snapshot.get('studyLeader');
+    return studyLeaderName;
+  }
+
+  //currentMembers 값을 가져 오는 메서드
+  Future<String> getCurrentMembers() async {
+    final uid = auth.currentUser!.uid;
+    final userData = firestore.collection('studiesOnRecruiting').doc(uid);
+    final snapshot = await userData.get();
+    final currentMembersNumber = snapshot.get('currentMembers');
+    return currentMembersNumber;
+  }
+
+  //NumberOfDefaultParticipants 값을 가져 오는 메서드
+  Future<String> getParticipantsNumber() async {
+    final uid = auth.currentUser!.uid;
+    final userData = firestore.collection('studiesOnRecruiting').doc(uid);
+    final snapshot = await userData.get();
+    final maxParticipants = snapshot.get('numberOfDefaultParticipants');
+    return maxParticipants;
   }
 
   //studiesOnRecruiting 콜렉션에서 participants 필드의 array를 가져오는 메서드

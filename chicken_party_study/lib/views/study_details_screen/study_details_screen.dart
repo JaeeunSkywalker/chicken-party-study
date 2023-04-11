@@ -1,5 +1,6 @@
 import 'package:chicken_patry_study/app_cache/app_cache.dart';
 import 'package:chicken_patry_study/views/search_screen/search_screen.dart';
+import 'package:chicken_patry_study/views/study_details_screen/started_study_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -21,6 +22,8 @@ class StudyDetailsScreen extends StatefulWidget {
 class StudyDetailsScreenState extends State<StudyDetailsScreen> {
   Map<String, dynamic> studyDetails = {'': ''};
 
+  String userNickname = '';
+
   @override
   void initState() {
     super.initState();
@@ -31,6 +34,8 @@ class StudyDetailsScreenState extends State<StudyDetailsScreen> {
     try {
       final DocumentSnapshot<Map<String, dynamic>> snapshot =
           await FirebaseService().getStudyDetails(widget.newGroupId);
+      userNickname =
+          await FirebaseService().getFirebaseUserNickname() as String;
       if (snapshot.exists) {
         setState(() {
           studyDetails = snapshot.data()!;
@@ -149,21 +154,55 @@ class StudyDetailsScreenState extends State<StudyDetailsScreen> {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 bool isJoined = snapshot.data!;
-                return isJoined
-                    ? ElevatedButton(
-                        onPressed: () async {
-                          // 스터디 나가기
-                          await leaveStudy(context, widget.newGroupId);
-                        },
-                        child: const Text('스터디 나가기'),
-                      )
-                    : ElevatedButton(
-                        onPressed: () async {
-                          // 스터디 참여
-                          await joinStudy(widget.newGroupId);
-                        },
-                        child: const Text('스터디 참여하기'),
-                      );
+                // return isJoined
+                //     ? ElevatedButton(
+                //         onPressed: () async {
+                //           // 스터디 나가기
+                //           await leaveStudy(context, widget.newGroupId);
+                //         },
+                //         child: const Text('스터디 나가기'),
+                //       )
+                //     : ElevatedButton(
+                //         onPressed: () async {
+                //           // 스터디 참여
+                //           await joinStudy(widget.newGroupId);
+                //         },
+                //         child: const Text('스터디 참여하기'),
+                //       );
+                if (isJoined) {
+                  //내가 개설자고 currentMembers랑 numberOfDefaultParticipants랑 같으면
+                  //스터디를 시작한다.
+                  final isStudyLeader =
+                      userNickname == studyDetails['studyLeader'];
+                  final isStudyFull = studyDetails['currentMembers'] ==
+                      studyDetails['numberOfDefaultParticipants'];
+
+                  if (isStudyLeader && isStudyFull) {
+                    return ElevatedButton(
+                      onPressed: () async {
+                        // 새로운 스터디 창으로 이동
+                        Get.offAll(const StartedStudyScreen());
+                      },
+                      child: const Text('★★★스터디 시작하기★★★'),
+                    );
+                  } else {
+                    return ElevatedButton(
+                      onPressed: () async {
+                        // 스터디 나가기
+                        await leaveStudy(context, widget.newGroupId);
+                      },
+                      child: const Text('스터디 나가기'),
+                    );
+                  }
+                } else {
+                  return ElevatedButton(
+                    onPressed: () async {
+                      // 스터디 참여
+                      await joinStudy(widget.newGroupId);
+                    },
+                    child: const Text('스터디 참여하기'),
+                  );
+                }
               } else if (snapshot.hasError) {
                 // 에러 처리
                 return Container(

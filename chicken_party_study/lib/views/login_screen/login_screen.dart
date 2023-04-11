@@ -1,5 +1,7 @@
 import 'package:chicken_patry_study/app_cache/app_cache.dart';
+import 'package:chicken_patry_study/services/firebase_service.dart';
 import 'package:chicken_patry_study/views/home_screen/home.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -42,6 +44,24 @@ class LoginScreenState extends State<LoginScreen> {
       final userNickname = userSnapshot['nickname'];
       AppCache.writeUserNickname(userNickname);
 
+      //푸시 알림을 위한 토큰 받고 파이어스토어에 저장
+      final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+      Future<String> getAndSaveFcmToken() async {
+        String? fcmToken = await firebaseMessaging.getToken();
+        fcmToken ?? '';
+        return fcmToken!;
+      }
+
+      final fcmToken = await getAndSaveFcmToken();
+
+      //파이어스토어에 저장
+      DocumentReference userRef = FirebaseService.firestore
+          .collection('users')
+          .doc(FirebaseService.auth.currentUser!.uid);
+      await userRef.set({
+        'fcmToken': fcmToken,
+      }, SetOptions(merge: true));
+
       if (!userSnapshot.exists) {
         // User does not exist, sign out
         await FirebaseAuth.instance.signOut();
@@ -72,7 +92,7 @@ class LoginScreenState extends State<LoginScreen> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('에러가 발생했습니다.\n관리자에게 문의하세요.')),
+        SnackBar(content: Text(e.toString())),
       );
       setState(() {
         _isLoading = false;

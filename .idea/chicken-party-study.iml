@@ -6,6 +6,21 @@
       <excludeFolder url="file://$MODULE_DIR$/chicken_patry_study/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/chicken_patry_study/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/chicken_patry_study/build" />
+      <excludeFolder url="file://$MODULE_DIR$/chicken_party_study/linux/flutter/ephemeral/.plugin_symlinks/path_provider_linux/build" />
+      <excludeFolder url="file://$MODULE_DIR$/chicken_party_study/linux/flutter/ephemeral/.plugin_symlinks/path_provider_linux/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/chicken_party_study/linux/flutter/ephemeral/.plugin_symlinks/path_provider_linux/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/chicken_party_study/linux/flutter/ephemeral/.plugin_symlinks/path_provider_linux/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/chicken_party_study/linux/flutter/ephemeral/.plugin_symlinks/path_provider_linux/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/chicken_party_study/linux/flutter/ephemeral/.plugin_symlinks/path_provider_linux/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/chicken_party_study/windows/flutter/ephemeral/.plugin_symlinks/path_provider_windows/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/chicken_party_study/windows/flutter/ephemeral/.plugin_symlinks/path_provider_windows/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/chicken_party_study/windows/flutter/ephemeral/.plugin_symlinks/path_provider_windows/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/chicken_party_study/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/chicken_party_study/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/chicken_party_study/build" />
+      <excludeFolder url="file://$MODULE_DIR$/chicken_party_study/windows/flutter/ephemeral/.plugin_symlinks/path_provider_windows/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/chicken_party_study/windows/flutter/ephemeral/.plugin_symlinks/path_provider_windows/build" />
+      <excludeFolder url="file://$MODULE_DIR$/chicken_party_study/windows/flutter/ephemeral/.plugin_symlinks/path_provider_windows/.pub" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
