@@ -16,7 +16,7 @@ class _SplashScreenState extends State<SplashScreen> {
   //스플래시 스크린 뜨고 3초 뒤에 Home으로 들어감
   changeScreen() {
     Future.delayed(const Duration(seconds: 3), () {
-      AppCache.delCacheisLoggedin();
+      AppCache.deleteCacheisLoggedin();
       Get.to(() => const Home(
             isloggedin: false,
           ));

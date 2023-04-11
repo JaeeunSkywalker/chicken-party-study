@@ -262,6 +262,12 @@ class StudyDetailsScreenState extends State<StudyDetailsScreen> {
                 // ignore: empty_catches
               } catch (e) {}
             }
+          } else {
+            Get.snackbar(
+              '흑...',
+              '스터디 나가기에 성공했습니다.',
+              snackPosition: SnackPosition.BOTTOM,
+            );
           }
         }
       }

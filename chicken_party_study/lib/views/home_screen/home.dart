@@ -116,62 +116,72 @@ class HomeState extends State<Home> with WidgetsBindingObserver {
                 ),
               ),
               child: ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                itemCount: studios.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final studio = studios[index];
-                  String startdate = (studio['startDate']);
-                  String enddate = (studio['endDate']);
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: studios.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final studio = studios[index];
+                    String startdate = (studio['startDate']);
+                    String enddate = (studio['endDate']);
 
-                  //스터디 공개 유무에 따라 노출 처리
-                  //isPublic이 false인 스터디는 참여자에게만 노출된다.
-                  // ignore: unused_local_variable
-                  bool isPublic = studio['isPublic'];
-                  participants = studio['participants'];
+                    //스터디 공개 유무에 따라 노출 처리
+                    //isPublic이 false인 스터디는 참여자에게만 노출된다.
+                    // ignore: unused_local_variable
+                    bool isPublic = studio['isPublic'];
+                    participants = studio['participants'];
 
-                  //public방이거나 내가 참여한 방이어야만 뜬다
-                  if (true) {
+                    // 로그인하지 않았을 때 isPublic이 false인 스터디는 안 보여준다.
+                    if (!isPublic && AppCache.getCachedisLoggedin() == false) {
+                      return Container();
+                    }
+
+                    // 로그인 했을 때 isPublic이 false고 내가 참여되어 있지 않으면 안 나온다.
+                    if (AppCache.getCachedisLoggedin() &&
+                        (!isPublic &&
+                            !participants
+                                .contains(AppCache.getUserNickname()))) {
+                      return Container();
+                    }
+
                     return InkWell(
-                        child: Container(
-                      decoration: BoxDecoration(
-                        color: white,
-                        border: Border(
-                          bottom: BorderSide(
-                            width: 2,
-                            color: Colors.grey[300]!,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: white,
+                          border: Border(
+                            bottom: BorderSide(
+                              width: 2,
+                              color: Colors.grey[300]!,
+                            ),
                           ),
                         ),
-                      ),
-                      child: ListTile(
-                        title: Text(studio['studyGoal']),
-                        subtitle: Text(studio['groupDescription']),
-                        trailing: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text('시작일: $startdate'),
-                            Text('마감일: $enddate'),
-                          ],
+                        child: ListTile(
+                          title: Text(studio['studyGoal']),
+                          subtitle: Text(studio['groupDescription']),
+                          trailing: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text('시작일: $startdate'),
+                              Text('마감일: $enddate'),
+                            ],
+                          ),
+                          onTap: () async {
+                            final docSnapshot = await FirebaseFirestore.instance
+                                .collection('studiesOnRecruiting')
+                                .doc(studio.id)
+                                .get();
+                            final studyData = docSnapshot.data();
+                            if (studyData != null) {
+                              final study = Study.fromJson(studyData);
+                              Get.to(() => StudyDetailsScreen(
+                                    newGroupId: studio['newGroupId'],
+                                    study: study,
+                                  ));
+                            }
+                          },
                         ),
-                        onTap: () async {
-                          final docSnapshot = await FirebaseFirestore.instance
-                              .collection('studiesOnRecruiting')
-                              .doc(studio.id)
-                              .get();
-                          final studyData = docSnapshot.data();
-                          if (studyData != null) {
-                            final study = Study.fromJson(studyData);
-                            Get.to(() => StudyDetailsScreen(
-                                  newGroupId: studio['newGroupId'],
-                                  study: study,
-                                ));
-                          }
-                        },
                       ),
-                    ));
-                  }
-                },
-              ),
+                    );
+                  }),
             );
           },
         ),

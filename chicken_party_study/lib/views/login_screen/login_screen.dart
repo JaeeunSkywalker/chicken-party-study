@@ -39,6 +39,8 @@ class LoginScreenState extends State<LoginScreen> {
           .collection('users')
           .doc(userCredential.user!.uid)
           .get();
+      final userNickname = userSnapshot['nickname'];
+      AppCache.writeUserNickname(userNickname);
 
       if (!userSnapshot.exists) {
         // User does not exist, sign out
@@ -56,7 +58,7 @@ class LoginScreenState extends State<LoginScreen> {
       // User exists, set isloggedin to true and navigate to home screen
       setState(() {
         _isLoading = false;
-        AppCache.saveCacheisLoggedin();
+        AppCache.writeCacheisLoggedin();
         Get.to(() => Home(isloggedin: AppCache.getCachedisLoggedin()));
       });
 

@@ -1,3 +1,4 @@
+import 'package:chicken_patry_study/app_cache/app_cache.dart';
 import 'package:chicken_patry_study/services/firebase_service.dart';
 import 'package:chicken_patry_study/views/study_details_screen/study_details_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -57,7 +58,7 @@ class SearchScreenState extends State<SearchScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Get.to(() => const Home(isloggedin: false));
+            Get.to(() => Home(isloggedin: AppCache.getCachedisLoggedin()));
           },
         ),
         title: const Align(

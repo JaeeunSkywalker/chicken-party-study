@@ -86,7 +86,9 @@ PreferredSize appBarWidget(isloggedin) {
                 // 사용자 계정 삭제
                 await FirebaseService.auth.currentUser!.delete();
                 // 캐시 초기화
-                AppCache.delCacheisLoggedin();
+                //AppCache.delCacheisLoggedin();
+                AppCache.eraseAllCache();
+
                 Get.offAll(() => const Home(isloggedin: false));
               } catch (e) {
                 // 처리 중 에러 발생 시 처리
