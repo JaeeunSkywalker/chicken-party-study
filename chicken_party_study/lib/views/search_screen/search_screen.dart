@@ -58,7 +58,9 @@ class SearchScreenState extends State<SearchScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Get.to(() => Home(isloggedin: AppCache.getCachedisLoggedin()));
+            Get.to(() => Home(
+                isloggedin:
+                    FirebaseService.auth.currentUser != null ? true : false));
           },
         ),
         title: const Align(

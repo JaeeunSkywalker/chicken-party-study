@@ -180,7 +180,6 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                             child: const Text("예"),
                             onPressed: () async {
                               // 탈퇴 처리 로직
-                              final user = FirebaseAuth.instance.currentUser;
                               try {
                                 //uid 만들고
                                 final uid =

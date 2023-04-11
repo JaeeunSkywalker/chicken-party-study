@@ -29,21 +29,6 @@ class HomeState extends State<Home> with WidgetsBindingObserver {
     isloggedin = widget.isloggedin;
   }
 
-  List<BottomNavigationBarItem> items = [
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.home),
-      label: '홈',
-    ),
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.search),
-      label: '검색',
-    ),
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.person),
-      label: '내 프로필',
-    ),
-  ];
-
   late DateTime startdate;
   late DateTime enddate;
   String newGroupId = '';
@@ -69,11 +54,10 @@ class HomeState extends State<Home> with WidgetsBindingObserver {
     return SafeArea(
       child: Scaffold(
         appBar: appBarWidget(widget.isloggedin),
-        bottomNavigationBar: MainBottomNavigationBar(
-          items: items,
-        ),
+        bottomNavigationBar: MainBottomNavigationBar(),
         floatingActionButton: (widget.isloggedin &&
-                AppCache.getCachedisLoggedin() == true)
+                AppCache.getCachedisLoggedin() == true &&
+                FirebaseService.auth.currentUser != null)
             ? FloatingActionButton(
                 onPressed: () {
                   showDialog(
@@ -88,7 +72,7 @@ class HomeState extends State<Home> with WidgetsBindingObserver {
                 },
                 child: const Icon(Icons.add),
               )
-            : null,
+            : Container(),
         body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection('studiesOnRecruiting')
@@ -130,12 +114,15 @@ class HomeState extends State<Home> with WidgetsBindingObserver {
                     participants = studio['participants'];
 
                     // 로그인하지 않았을 때 isPublic이 false인 스터디는 안 보여준다.
-                    if (!isPublic && isloggedin == false) {
+                    if (FirebaseService.auth.currentUser == null &&
+                        !isPublic &&
+                        isloggedin == false) {
                       return Container();
                     }
 
                     // 로그인 했을 때 isPublic이 false고 내가 참여되어 있지 않으면 안 나온다.
-                    if (AppCache.getCachedisLoggedin() &&
+                    if (FirebaseService.auth.currentUser != null &&
+                        AppCache.getCachedisLoggedin() &&
                         !isPublic &&
                         !participants.contains(AppCache.getUserNickname())) {
                       return Container();

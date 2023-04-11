@@ -1,5 +1,6 @@
 import 'package:chicken_patry_study/consts/colors.dart';
 import 'package:chicken_patry_study/services/firebase_service.dart';
+import 'package:chicken_patry_study/views/ranking_screen/ranking_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -8,15 +9,37 @@ import '../views/profile_screen/public_profile_screen.dart';
 import '../views/search_screen/search_screen.dart';
 
 class MainBottomNavigationBar extends StatefulWidget {
-  final List<BottomNavigationBarItem> items;
-  final MaterialColor? selectedItemColor;
-  final MaterialColor? unselectedItemColor;
+  final List<BottomNavigationBarItem> items = [
+    const BottomNavigationBarItem(
+      icon: Icon(
+        Icons.home,
+      ),
+      label: '홈',
+    ),
+    const BottomNavigationBarItem(
+      icon: Icon(
+        Icons.search,
+      ),
+      label: '검색',
+    ),
+    const BottomNavigationBarItem(
+      icon: Icon(
+        Icons.person,
+      ),
+      label: '내 프로필',
+    ),
+    const BottomNavigationBarItem(
+      icon: Icon(
+        Icons.star,
+      ),
+      label: '랭킹',
+    ),
+  ];
+  final MaterialColor? selectedItemColor = Colors.blue;
+  final MaterialColor? unselectedItemColor = Colors.grey;
 
-  const MainBottomNavigationBar({
+  MainBottomNavigationBar({
     Key? key,
-    required this.items,
-    this.selectedItemColor,
-    this.unselectedItemColor,
   }) : super(key: key);
 
   @override
@@ -48,24 +71,11 @@ class MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
         }
       } else if (_currentIndex == 1) {
         Get.offAll(() => const SearchScreen());
+      } else if (_currentIndex == 3) {
+        Get.offAll(() => const RankingScreen());
       }
     });
   }
-
-  List<BottomNavigationBarItem> items = [
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.home),
-      label: '홈',
-    ),
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.search),
-      label: '검색',
-    ),
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.person),
-      label: '내 프로필',
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -74,8 +84,13 @@ class MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
       items: widget.items,
       onTap: _onItemTapped,
       currentIndex: _currentIndex,
-      selectedItemColor: widget.selectedItemColor ?? Colors.blue,
-      unselectedItemColor: widget.unselectedItemColor ?? Colors.grey,
+      selectedItemColor: Colors.blue,
+      unselectedItemColor: Colors.grey,
+      showSelectedLabels: true, // 선택된 아이템의 라벨 표시 여부
+      showUnselectedLabels: true, // 선택되지 않은 아이템의 라벨 표시 여부
+      selectedFontSize: 15, // 선택된 아이템의 글씨 크기 설정
+      unselectedFontSize: 15, // 선택되지 않은 아이템의 글씨 크기 설정
+      type: BottomNavigationBarType.fixed,
     );
   }
 }

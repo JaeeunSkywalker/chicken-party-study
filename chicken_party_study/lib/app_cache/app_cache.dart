@@ -4,12 +4,14 @@ class AppCache {
   static final box = GetStorage();
   static String userNickname = '';
 
-  static Future<void> writeCacheisLoggedin() async {
+  static Future<bool> writeCacheisLoggedin() async {
     await box.write('isloggedin', true);
+    return true;
   }
 
-  static Future<void> deleteCacheisLoggedin() async {
+  static Future<bool> deleteCacheisLoggedin() async {
     await box.write('isloggedin', false);
+    return false;
   }
 
   static bool getCachedisLoggedin() {
@@ -17,9 +19,8 @@ class AppCache {
       return true;
     } else if (box.read<bool>('isloggedin') == false) {
       return false;
-    } else {
-      return false;
     }
+    return false;
   }
 
   static void writeUserNickname(value) {
