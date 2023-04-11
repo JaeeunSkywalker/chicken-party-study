@@ -130,15 +130,14 @@ class HomeState extends State<Home> with WidgetsBindingObserver {
                     participants = studio['participants'];
 
                     // 로그인하지 않았을 때 isPublic이 false인 스터디는 안 보여준다.
-                    if (!isPublic && AppCache.getCachedisLoggedin() == false) {
+                    if (!isPublic && isloggedin == false) {
                       return Container();
                     }
 
                     // 로그인 했을 때 isPublic이 false고 내가 참여되어 있지 않으면 안 나온다.
                     if (AppCache.getCachedisLoggedin() &&
-                        (!isPublic &&
-                            !participants
-                                .contains(AppCache.getUserNickname()))) {
+                        !isPublic &&
+                        !participants.contains(AppCache.getUserNickname())) {
                       return Container();
                     }
 

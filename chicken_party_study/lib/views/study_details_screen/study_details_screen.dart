@@ -108,7 +108,7 @@ class StudyDetailsScreenState extends State<StudyDetailsScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Get.offAll(() => Home(isloggedin: AppCache.getCachedisLoggedin()));
+            Navigator.of(context).pop();
           },
         ),
         title: Align(

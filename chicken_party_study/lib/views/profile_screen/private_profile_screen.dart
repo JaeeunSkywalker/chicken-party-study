@@ -13,6 +13,7 @@ class EditProfileScreen extends StatefulWidget {
 
 class EditProfileScreenState extends State<EditProfileScreen> {
   final _nicknameController = TextEditingController();
+  final _passwordController = TextEditingController();
   final _jobController = TextEditingController();
   final _lifegoalController = TextEditingController();
   final _shorttermgoalController = TextEditingController();
@@ -42,11 +43,23 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     // 기존 nickname 값 읽어오기
     final userData = await userDocRef.get();
     final prevNickname = userData.data()?['nickname'];
+    final prevPassword = userData.data()?['password'];
 
     // nickname 필드 업데이트
     if (_nicknameController.text.isNotEmpty &&
         _nicknameController.text != prevNickname) {
-      await userDocRef.update({'nickname': _nicknameController.text});
+      await userDocRef.update({
+        'nickname': _nicknameController.text.trim(),
+      });
+    }
+
+    //password 필드 업데이트
+    if (_passwordController.text.isNotEmpty &&
+        _passwordController.text != prevPassword) {
+      await userDocRef.update({
+        'password': _passwordController.text.trim(),
+        'passwordConfirm': _passwordController.text.trim(),
+      });
     }
 
     //이제 profiles 콜렉션 작업 시작
@@ -113,6 +126,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void dispose() {
     _nicknameController.dispose();
+    _passwordController.dispose();
     _jobController.dispose();
     _lifegoalController.dispose();
     _shorttermgoalController.dispose();
@@ -157,6 +171,20 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                 controller: _nicknameController,
                 decoration: const InputDecoration(
                   hintText: '닉네임 수정을 원하시면 입력해 주세요.',
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                '비밀번호',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextFormField(
+                controller: _passwordController,
+                decoration: const InputDecoration(
+                  hintText: '비밀번호 수정을 원하시면 입력해 주세요.',
                 ),
               ),
               const SizedBox(height: 16),

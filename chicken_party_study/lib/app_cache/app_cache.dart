@@ -31,7 +31,7 @@ class AppCache {
     return value;
   }
 
-  static void eraseAllCache() {
-    box.erase();
+  static void deleteUserNickname() {
+    box.remove(userNickname);
   }
 }
