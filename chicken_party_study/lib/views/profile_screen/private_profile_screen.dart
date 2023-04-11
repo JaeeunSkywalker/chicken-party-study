@@ -1,3 +1,5 @@
+import 'package:chicken_patry_study/services/firebase_service.dart';
+import 'package:chicken_patry_study/views/home_screen/home.dart';
 import 'package:chicken_patry_study/views/profile_screen/public_profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -152,6 +154,89 @@ class EditProfileScreenState extends State<EditProfileScreen> {
             '프로필 수정 페이지',
           ),
         ),
+        actions: [
+          const Center(
+              child: Text(
+            '회원탈퇴',
+            style: TextStyle(
+                color: Colors.amber,
+                fontWeight: FontWeight.bold,
+                fontSize: 20.0),
+          )),
+          GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Center(child: Text("탈퇴 확인")),
+                    content:
+                        const Text("정말 탈퇴하시겠습니까?", textAlign: TextAlign.center),
+                    actions: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextButton(
+                            child: const Text("예"),
+                            onPressed: () async {
+                              // 탈퇴 처리 로직
+                              final user = FirebaseAuth.instance.currentUser;
+                              try {
+                                //uid 만들고
+                                final uid =
+                                    FirebaseService.auth.currentUser!.uid;
+                                //users 문서 지우기
+                                await FirebaseService.firestore
+                                    .collection('users')
+                                    .doc(uid)
+                                    .delete();
+                                //studiesOnRecruiting 문서 지우기
+                                await FirebaseService.firestore
+                                    .collection('studiesOnRecruiting')
+                                    .doc(uid)
+                                    .delete();
+                                //profiles 문서 지우기
+                                await FirebaseService.firestore
+                                    .collection('profiles')
+                                    .doc(uid)
+                                    .delete();
+                                final user = FirebaseService.auth.currentUser!;
+                                await user.delete();
+                                // 사용자 삭제 성공 시 처리
+                              } on FirebaseAuthException catch (e) {
+                                if (e.code == 'requires-recent-login') {
+                                  // 다시 로그인한 후 사용자 삭제
+                                  Get.snackbar(
+                                      '사용자 삭제 오류', '다시 로그인 한 후 시도해 주세요.');
+                                }
+                              } catch (e) {
+                                // 기타 에러 처리
+                              }
+                              Get.offAll(() => const Home(isloggedin: false));
+                            },
+                          ),
+                          const SizedBox(width: 16),
+                          TextButton(
+                            child: const Text("아니오"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Icon(
+                Icons.delete,
+              ),
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
