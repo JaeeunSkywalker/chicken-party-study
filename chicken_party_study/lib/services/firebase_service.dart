@@ -169,4 +169,14 @@ class FirebaseService {
     }
     throw Exception("checkJoinOrNot error: unknown");
   }
+
+  //참가자 리스트로 가져오기
+  static Future<List<String>> getParticipantsList(String studyId) async {
+    final DocumentSnapshot studySnapshot = await FirebaseFirestore.instance
+        .collection('studiesOnRecruiting')
+        .doc(studyId)
+        .get();
+    final List<dynamic> participants = studySnapshot.get('participants') ?? [];
+    return participants.cast<String>();
+  }
 }

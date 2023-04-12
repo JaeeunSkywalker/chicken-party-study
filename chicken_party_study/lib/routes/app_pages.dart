@@ -3,7 +3,7 @@ import 'package:chicken_patry_study/views/search_screen/search_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../views/study_details_screen/study_details_screen.dart';
+import '../views/study_screen/study_details_screen/study_details_screen.dart';
 import 'app_routes.dart';
 
 abstract class AppPages {

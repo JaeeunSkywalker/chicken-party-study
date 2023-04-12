@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 import '../../consts/consts.dart';
 import '../../widgets/bottom_navigation_bar.dart';
 import '../search_screen/search_screen.dart';
-import '../study_details_screen/study_details_screen.dart';
+import '../study_screen/study_details_screen/study_details_screen.dart';
 import '../study_group/study_group_form.dart';
 
 // ignore: must_be_immutable

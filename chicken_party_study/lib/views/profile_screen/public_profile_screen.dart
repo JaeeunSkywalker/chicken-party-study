@@ -1,9 +1,7 @@
 // ignore_for_file: prefer_final_fields
 import 'dart:io';
 
-import 'package:chicken_patry_study/app_cache/app_cache.dart';
 import 'package:chicken_patry_study/services/firebase_service.dart';
-import 'package:chicken_patry_study/views/home_screen/home.dart';
 import 'package:chicken_patry_study/views/profile_screen/goals.dart';
 import 'package:chicken_patry_study/views/profile_screen/private_profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -133,7 +131,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
-              Get.to(() => Home(isloggedin: AppCache.getCachedisLoggedin()));
+              Navigator.of(context).pop();
             },
           ),
           title: const Align(

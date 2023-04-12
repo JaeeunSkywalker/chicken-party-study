@@ -1,19 +1,21 @@
 import 'package:chicken_patry_study/app_cache/app_cache.dart';
 import 'package:chicken_patry_study/views/search_screen/search_screen.dart';
-import 'package:chicken_patry_study/views/study_details_screen/started_study_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../services/firebase_service.dart';
-import '../home_screen/home.dart';
+import '../../../services/firebase_service.dart';
+import '../../home_screen/home.dart';
+import '../started_study_screen/started_study_screen.dart';
 
 class StudyDetailsScreen extends StatefulWidget {
   final String newGroupId;
 
-  const StudyDetailsScreen(
-      {Key? key, required this.newGroupId, required Study study})
-      : super(key: key);
+  const StudyDetailsScreen({
+    Key? key,
+    required this.newGroupId,
+    required Study study,
+  }) : super(key: key);
 
   @override
   State<StudyDetailsScreen> createState() => StudyDetailsScreenState();
@@ -177,11 +179,11 @@ class StudyDetailsScreenState extends State<StudyDetailsScreen> {
                   final isStudyFull = studyDetails['currentMembers'] ==
                       studyDetails['numberOfDefaultParticipants'];
 
-                  if (isStudyLeader && isStudyFull) {
+                  if ((isStudyLeader && isStudyFull) || isStudyFull) {
                     return ElevatedButton(
                       onPressed: () async {
                         // 새로운 스터디 창으로 이동
-                        Get.offAll(const StartedStudyScreen());
+                        Get.offAll(() => const StartedStudyScreen());
                       },
                       child: const Text('★★★스터디 시작하기★★★'),
                     );

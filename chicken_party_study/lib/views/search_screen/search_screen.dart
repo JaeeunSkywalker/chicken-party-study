@@ -1,5 +1,5 @@
 import 'package:chicken_patry_study/services/firebase_service.dart';
-import 'package:chicken_patry_study/views/study_details_screen/study_details_screen.dart';
+import 'package:chicken_patry_study/views/study_screen/study_details_screen/study_details_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -28,12 +28,15 @@ class SearchScreenState extends State<SearchScreen> {
     final searchValue = _searchController.text.trim();
     if (searchValue.isNotEmpty) {
       final query = searchValue.toLowerCase();
-      final studiesRef =
+      final studiesRef1 =
           FirebaseService.firestore.collection('studiesOnRecruiting');
-      final snapshot = await studiesRef.get();
+      final studiesRef2 = FirebaseService.firestore.collection('users');
+      final snapshot1 = await studiesRef1.get();
+      final snapshot2 = await studiesRef2.get();
+
       final List<Study> searchResults = [];
-      if (snapshot.docs.isNotEmpty) {
-        for (final doc in snapshot.docs) {
+      if (snapshot1.docs.isNotEmpty && snapshot2.docs.isNotEmpty) {
+        for (final doc in snapshot1.docs) {
           final data = doc.data();
           if (data['groupName'].toLowerCase().contains(query) ||
               data['groupDescription'].toLowerCase().contains(query) ||

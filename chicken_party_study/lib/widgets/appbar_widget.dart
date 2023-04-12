@@ -87,7 +87,7 @@ PreferredSize appBarWidget(isloggedin) {
                 await FirebaseService.auth.currentUser!.delete();
                 // 캐시 초기화
                 //로그인 상태를 false로
-                AppCache.deleteCacheisLoggedin();
+                await AppCache.deleteCacheisLoggedin();
                 //nickname 값을 없게
                 AppCache.deleteUserNickname();
 
