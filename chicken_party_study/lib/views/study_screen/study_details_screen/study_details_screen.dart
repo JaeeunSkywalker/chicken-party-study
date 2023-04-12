@@ -183,7 +183,9 @@ class StudyDetailsScreenState extends State<StudyDetailsScreen> {
                     return ElevatedButton(
                       onPressed: () async {
                         // 새로운 스터디 창으로 이동
-                        Get.offAll(() => const StartedStudyScreen());
+                        Get.offAll(() => StartedStudyScreen(
+                              newGroupId: widget.newGroupId,
+                            ));
                       },
                       child: const Text('★★★스터디 시작하기★★★'),
                     );

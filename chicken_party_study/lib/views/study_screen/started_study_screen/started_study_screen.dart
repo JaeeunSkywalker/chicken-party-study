@@ -5,13 +5,21 @@ import '../../../services/firebase_service.dart';
 import '../../home_screen/home.dart';
 
 class StartedStudyScreen extends StatefulWidget {
-  const StartedStudyScreen({Key? key}) : super(key: key);
+  final String newGroupId;
+
+  const StartedStudyScreen({Key? key, required this.newGroupId})
+      : super(key: key);
 
   @override
   StartedStudyScreenState createState() => StartedStudyScreenState();
 }
 
 class StartedStudyScreenState extends State<StartedStudyScreen> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   Future<List<List<String>>> getMyStudyParticipantList() async {
     final user = await FirebaseService.firestore
         .collection('users')
@@ -35,58 +43,63 @@ class StartedStudyScreenState extends State<StartedStudyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Get.to(() => const Home(isloggedin: true));
-            },
-          ),
-          title: const Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              '스터디 진행 상황',
-            ),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Get.to(() => const Home(isloggedin: true));
+          },
+        ),
+        title: const Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            '스터디 상세 페이지',
           ),
         ),
-        body: FutureBuilder<List<List<String>>>(
-          future: getMyStudyParticipantList(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasData) {
-              final participantsList = snapshot.data!;
-              // return Row(
-              //   children: participantsList.map((list) {
-              //     return Column(
-              //       children: list.map((value) {
-              //         return Text(value);
-              //       }).toList(),
-              //     );
-              //   }).toList(),
-              // );
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: participantsList
-                      .expand((list) => list) // 각 list를 풀어서 하나의 리스트로 만듦
-                      .toSet() // 중복 제거
-                      .map((value) => Text(value))
-                      .map((widget) => CircleAvatar(
-                            radius: 30,
-                            backgroundImage: const AssetImage(
-                                'assets/images/default_profile_image.png'),
-                            child: widget,
-                          ))
-                      .toList(),
+      ),
+      body: FutureBuilder<List<List<String>>>(
+        future: getMyStudyParticipantList(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasData) {
+            final participantsList = snapshot.data!;
+            return Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Row(
+                    children: participantsList
+                        .expand((list) => list) // 각 list를 풀어서 하나의 리스트로 만듦
+                        .toSet() // 중복 제거
+                        .map((value) => Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Column(
+                                children: [
+                                  const CircleAvatar(
+                                    radius: 35,
+                                    backgroundImage: AssetImage(
+                                        'assets/images/default_profile_image.png'),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    value,
+                                    style: const TextStyle(color: Colors.black),
+                                  ),
+                                  const SizedBox(height: 8),
+                                ],
+                              ),
+                            ))
+                        .toList(),
+                  ),
                 ),
-              );
-            } else {
-              return const Center(child: Text('에러가 발생했습니다.'));
-            }
-          },
-        ));
+              ],
+            );
+          } else {
+            return const Center(child: Text('에러가 발생했습니다.'));
+          }
+        },
+      ),
+    );
   }
 }
