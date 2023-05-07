@@ -4,6 +4,14 @@
 기한을 정해 스터디를 진행해서 가장 빨리 스터디 목표를 달성한 사람이 기프티콘을 갖습니다.✨<br>
 <h4>사용 기술</h4>
 Flutter(Dart), Firebase, Firestore, Firebase Storage<br>
+<h4>개발 기간</h4>
+2023-03-30 ~ 2023-04-12
+<h4>구현 내용</h4>
+회원가입, 로그인, 로그아웃, 회원탈퇴(Firebase Auth 사용)<br>
+스터디 조회, 등록, 참여, 삭제, 검색(Firestore 사용)<br>
+프로필 페이지(Firebase Storage 사용)<br>
+공개방, 비공개방 별도 운영<br>
+Splash Screen, GetStorage로 캐싱, 회원가입 시 Regex 처리<br>
 <h4>데모</h4>
 https://youtu.be/3eUWm9_iGDw<br>
 <h4>기여도</h4>
